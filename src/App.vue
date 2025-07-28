@@ -1,8 +1,7 @@
 <template>
-  <UpsellScreen />
+  <router-view />
 </template>
 
 <script setup>
-import UpsellScreen from './components/UpsellScreen.vue'
 </script>
 
