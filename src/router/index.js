@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../components/LandingPage.vue'
+import Quiz from '../components/Quiz.vue'
 
 const routes = [
     { path: '/', component: LandingPage },
-    // We'll add /quiz later
+    { path: '/quiz', component: Quiz },
 ]
 
 const router = createRouter({
