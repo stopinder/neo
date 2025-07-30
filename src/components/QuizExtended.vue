@@ -64,9 +64,14 @@ const currentQuestion = computed(() => questions[currentIndex.value])
 
 function selectOption(option) {
   answers.value.push({ question: currentQuestion.value.text, answer: option })
+
   if (currentIndex.value < questions.length - 1) {
     currentIndex.value++
   } else {
+    // ✅ Save this second batch of answers too
+    const stored = JSON.parse(localStorage.getItem('quizAnswers')) || []
+    const combined = [...stored, ...answers.value]
+    localStorage.setItem('quizAnswers', JSON.stringify(combined))
     router.push('/payment')
   }
 }

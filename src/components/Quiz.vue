@@ -32,9 +32,9 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router' // ✅ ADD THIS
 
-const router = useRouter()
+const router = useRouter()             // ✅ AND THIS
 
 const questions = [
   {
@@ -79,14 +79,14 @@ function selectOption(option) {
     currentIndex.value++
   } else {
     localStorage.setItem('quizAnswers', JSON.stringify(answers.value))
+    router.push('/quiz-extended') // ✅ this now works
   }
 }
 
 function startCheckout() {
   window.Outseta.showCheckout({
-    product: 'personality-app',
-    plan: 'full-report-access'
+    product: 'your-product-id',
+    plan: 'your-plan-id'
   })
 }
 </script>
-
