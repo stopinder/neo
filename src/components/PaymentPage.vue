@@ -17,7 +17,7 @@
 
 <script setup>
 function goToCheckout() {
-  window.location.href = 'https://buy.stripe.com/dRmdR8dy2bWNg2855ic3m02S'
+  window.location.href = 'https://buy.stripe.com/dRmdR8dy2bWNg2855ic3m02'
 }
 </script>
 
