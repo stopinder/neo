@@ -13,7 +13,7 @@
 
     <div class="border-t border-gray-200 pt-4">
       <h3 class="text-xl font-semibold">🔓 Unlock your full personality map</h3>
-      <p class="mt-2">Get deeper insights with 5 more questions and a downloadable report:</p>
+      <p class="mt-2">Get deeper insights with 8 more questions and a downloadable report:</p>
       <ul class="list-disc list-inside mt-2 space-y-1">
         <li>Your dominant and shadow parts (IFS)</li>
         <li>Attachment triggers and healing paths</li>
