@@ -1,9 +1,12 @@
 <template>
   <div class="min-h-screen flex items-center justify-center p-4">
     <div class="text-center max-w-xl w-full">
-      <h2 class="text-2xl font-bold mb-6">Question {{ currentIndex + 1 }} of {{ questions.length }}</h2>
+      <h2 class="text-2xl font-bold mb-6">
+        Question {{ currentIndex + 1 }} of {{ questions.length }}
+      </h2>
       <p class="text-lg text-gray-700 mb-6">{{ currentQuestion.text }}</p>
-      <div class="space-y-4">
+
+      <div class="space-y-4" v-if="!quizComplete">
         <button
             v-for="(option, i) in currentQuestion.options"
             :key="i"
@@ -11,6 +14,16 @@
             class="block w-full bg-white hover:bg-indigo-50 border border-gray-300 px-4 py-3 rounded shadow-sm text-left transition"
         >
           {{ option }}
+        </button>
+      </div>
+
+      <div v-else class="mt-8">
+        <p class="mb-6 text-green-700 font-medium">You've completed the quiz!</p>
+        <button
+            @click="startCheckout"
+            class="bg-indigo-600 text-white px-6 py-3 rounded shadow hover:bg-indigo-700 transition"
+        >
+          Buy Full Report
         </button>
       </div>
     </div>
@@ -57,13 +70,23 @@ const questions = [
 const answers = ref([])
 const currentIndex = ref(0)
 const currentQuestion = computed(() => questions[currentIndex.value])
+const quizComplete = computed(() => currentIndex.value >= questions.length)
 
 function selectOption(option) {
   answers.value.push({ question: currentQuestion.value.text, answer: option })
+
   if (currentIndex.value < questions.length - 1) {
     currentIndex.value++
   } else {
-    router.push('/quiz-extended')
+    localStorage.setItem('quizAnswers', JSON.stringify(answers.value))
   }
 }
+
+function startCheckout() {
+  window.Outseta.showCheckout({
+    product: 'personality-app',
+    plan: 'full-report-access'
+  })
+}
 </script>
+

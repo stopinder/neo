@@ -9,7 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@sendinblue/client": "^3.3.1",
     "axios": "^1.11.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "html2pdf.js": "^0.10.3",
     "vue": "^3.5.17",
     "vue-router": "^4.5.1"
   },
@@ -21,5 +27,10 @@
     "tailwindcss": "^3.4.3",
     "vite": "^7.0.0",
     "vite-plugin-vue-devtools": "^8.0.0"
-  }
+  },
+  "description": "This template should help get you started developing with Vue 3 in Vite.",
+  "main": "postcss.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
