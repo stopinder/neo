@@ -16,11 +16,8 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
 function goToCheckout() {
-  router.push('/full-report')
+  window.location.href = 'https://buy.stripe.com/dRmdR8dy2bWNg2855ic3m02S'
 }
 </script>
+
