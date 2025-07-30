@@ -19,6 +19,9 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const questions = [
   {
@@ -29,7 +32,26 @@ const questions = [
     text: "What motivates you the most?",
     options: ["Growth", "Peace", "Recognition", "Security"]
   },
-  // ... Add 8 more later
+  {
+    text: "How do you respond to criticism?",
+    options: ["Defensive", "Reflective", "Dismissive", "Anxious"]
+  },
+  {
+    text: "What’s your default emotional state?",
+    options: ["Calm", "Tense", "Cheerful", "Unsettled"]
+  },
+  {
+    text: "What role do you often take in group settings?",
+    options: ["Leader", "Supporter", "Observer", "Mediator"]
+  },
+  {
+    text: "How do you deal with conflict?",
+    options: ["Avoid it", "Confront directly", "Please others", "Shut down"]
+  },
+  {
+    text: "What do you fear most in relationships?",
+    options: ["Rejection", "Abandonment", "Control", "Judgment"]
+  }
 ]
 
 const answers = ref([])
@@ -39,11 +61,11 @@ const currentQuestion = computed(() => questions[currentIndex.value])
 
 function selectOption(option) {
   answers.value.push({ question: currentQuestion.value.text, answer: option })
+
   if (currentIndex.value < questions.length - 1) {
     currentIndex.value++
   } else {
-    console.log("Quiz complete", answers.value)
-    // Later: route to summary or results
+    router.push('/quiz-extended')
   }
 }
 </script>
