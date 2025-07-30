@@ -23,81 +23,48 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const questions = ref([
+const questions = [
   {
-    text: "When you're trying to stay in control, what inner voice guides you most?",
-    options: [
-      "I must stay ahead of problems.",
-      "People need me to be perfect.",
-      "If I relax, things fall apart.",
-      "No one else will handle this."
-    ]
+    text: "What quality do you most seek in a partner?",
+    options: ["Loyalty", "Excitement", "Emotional depth", "Stability"]
   },
   {
-    text: "When you feel emotionally overwhelmed, what do you usually do?",
-    options: [
-      "Numb out with distractions",
-      "Get angry or reactive",
-      "Over-socialize to avoid being alone",
-      "Shut down completely"
-    ]
+    text: "How do you handle emotional vulnerability?",
+    options: ["Avoid it", "Embrace it", "Overthink it", "Downplay it"]
   },
   {
-    text: "Deep down, what’s a part of you afraid others might see?",
-    options: [
-      "That I'm unlovable",
-      "That I'm a burden",
-      "That I'm weak or not enough",
-      "That I'm too much"
-    ]
+    text: "Which best describes your communication style?",
+    options: ["Direct", "Diplomatic", "Reserved", "Expressive"]
   },
   {
-    text: "When you're in conflict with someone close, how do you tend to act?",
-    options: [
-      "Like a parent — I criticize or control",
-      "Like a child — I withdraw or act out",
-      "Like an adult — I stay calm and discuss",
-      "I freeze and don't know what to do"
-    ]
+    text: "When hurt, you tend to...",
+    options: ["Withdraw", "Confront", "Overcompensate", "Shut down"]
   },
   {
-    text: "Which of these is hardest for you in a relationship?",
-    options: [
-      "Asking for what I need",
-      "Trusting people not to leave",
-      "Letting others have space",
-      "Believing I deserve love"
-    ]
+    text: "What do you crave most in life?",
+    options: ["Purpose", "Harmony", "Freedom", "Connection"]
   },
   {
-    text: "What type of person are you most drawn to?",
-    options: [
-      "Confident and dominant",
-      "Emotionally intense and mysterious",
-      "Sensitive and nurturing",
-      "Independent and logical"
-    ]
+    text: "What kind of people are you often drawn to?",
+    options: ["Strong and silent", "Outgoing and fun", "Nurturing and caring", "Ambitious and driven"]
   },
   {
-    text: "Which pattern have you repeated in past relationships?",
-    options: [
-      "I lose myself trying to please them",
-      "I attract emotionally unavailable people",
-      "I become controlling or anxious",
-      "I ignore red flags to avoid being alone"
-    ]
+    text: "Your biggest internal conflict is between...",
+    options: ["Self and others", "Logic and emotion", "Freedom and safety", "Control and surrender"]
+  },
+  {
+    text: "What kind of relationship dynamic drains you?",
+    options: ["Too clingy", "Too distant", "Too chaotic", "Too controlling"]
   }
-])
+]
 
 const answers = ref([])
 const currentIndex = ref(0)
-
-const currentQuestion = computed(() => questions.value[currentIndex.value])
+const currentQuestion = computed(() => questions[currentIndex.value])
 
 function selectOption(option) {
   answers.value.push({ question: currentQuestion.value.text, answer: option })
-
-  if (currentIndex.value < questions.value.length - 1) {
+  if (currentIndex.value < questions.length - 1) {
     currentIndex.value++
   } else {
     router.push('/payment')

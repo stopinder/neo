@@ -56,12 +56,10 @@ const questions = [
 
 const answers = ref([])
 const currentIndex = ref(0)
-
 const currentQuestion = computed(() => questions[currentIndex.value])
 
 function selectOption(option) {
   answers.value.push({ question: currentQuestion.value.text, answer: option })
-
   if (currentIndex.value < questions.length - 1) {
     currentIndex.value++
   } else {
