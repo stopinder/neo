@@ -1,5 +1,6 @@
 <template>
   <router-view />
+
   <LoginModal :visible="showLogin" />
 </template>
 

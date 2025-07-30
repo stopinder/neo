@@ -1,4 +1,5 @@
 <template>
+
   <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center text-center px-4">
     <div class="max-w-xl">
       <h1 class="text-4xl md:text-5xl font-bold mb-4 text-gray-800">

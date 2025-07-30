@@ -1,32 +1,49 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 to-white p-6 flex items-center justify-center">
+  <div class="min-h-screen bg-gradient-to-br from-midnight to-celestial text-starlight font-serif p-6 flex items-center justify-center">
     <div class="max-w-3xl w-full text-center space-y-8">
       <div>
-        <h2 class="text-4xl font-semibold text-indigo-800 mb-2">Your Inner Constellation</h2>
-        <p class="text-gray-700">A symbolic synthesis of your IFS system, Enneagram type, attachment style, and relational dynamics.</p>
+        <h2 class="text-4xl font-serif text-starlight mb-2">Your Inner Constellation</h2>
+        <p class="text-starlight/80">A symbolic synthesis of your IFS system, Enneagram type, attachment style, and relational dynamics.</p>
       </div>
 
-      <div v-if="loading" class="text-indigo-600 text-lg font-medium">
+      <div v-if="loading" class="text-starlight text-lg font-medium">
         Illuminating your internal landscape...
       </div>
 
-      <div v-else-if="report && !report.error" class="text-left bg-white shadow-xl rounded-xl p-6 space-y-6 text-gray-800" id="report-content">
-        <div v-for="(value, section) in report" :key="section">
-          <h3 class="text-xl font-semibold text-indigo-700 capitalize">{{ formatTitle(section) }}</h3>
-          <p class="mt-2 whitespace-pre-wrap">{{ value }}</p>
+      <div
+          v-else-if="report && !report.error"
+          id="report-content"
+          class="text-left bg-gradient-to-br from-celestial to-midnight text-starlight shadow-glow rounded-xl p-6 space-y-6"
+      >
+        <TransitionGroup name="fade" tag="div">
+          <div v-for="(value, section) in report" :key="section" class="fade-enter-active fade-leave-active">
+            <h3 class="text-xl font-serif font-semibold text-starlight/90 capitalize mt-4">
+              {{ formatTitle(section) }}
+            </h3>
+            <p class="mt-2 whitespace-pre-wrap leading-relaxed text-starlight/90">{{ value }}</p>
+          </div>
+        </TransitionGroup>
+
+        <!-- Optional: Closing Quote -->
+        <div class="pt-8 border-t border-starlight/20 mt-6">
+          <p class="italic text-starlight/70 text-sm mt-4">
+            “You do not have to be good. You only have to let the soft animal of your body love what it loves.”<br />
+            — Mary Oliver
+          </p>
         </div>
 
-        <div class="flex justify-center gap-4 pt-4">
-          <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md transition" @click="downloadPDF">
+        <!-- Actions -->
+        <div class="flex justify-center gap-4 pt-6">
+          <button class="bg-roseQuartz hover:bg-rose-400 text-white font-semibold px-5 py-2 rounded-md transition" @click="downloadPDF">
             Download Sacred Map (PDF)
           </button>
-          <button class="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-md transition" @click="emailReport">
+          <button class="bg-celestial hover:bg-midnight text-white font-semibold px-5 py-2 rounded-md transition" @click="emailReport">
             Send to My Inbox
           </button>
         </div>
       </div>
 
-      <div v-else class="text-red-600 font-medium">
+      <div v-else class="text-rose-300 font-medium">
         {{ report.error || 'Something went wrong while illuminating your inner terrain.' }}
       </div>
     </div>
@@ -34,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import html2pdf from 'html2pdf.js'
 
@@ -42,6 +59,25 @@ const report = ref({})
 const loading = ref(true)
 
 const storedAnswers = JSON.parse(localStorage.getItem('quizAnswers'))
+
+const sectionTitles = {
+  core_profile: "✨ Core Profile",
+  ifs_dynamics: "🛡️ IFS Dynamics",
+  enneagram_pattern: "🌿 Enneagram Pattern",
+  attachment_style: "🕊️ Attachment Style",
+  transactional_analysis: "🧠 Transactional Analysis",
+  relational_dynamics: "🔄 Relational Patterning",
+  mythic_comparison: "🌓 Mythic Reflection",
+  invitation: "🪞 A Gentle Invitation"
+}
+
+const formatTitle = (key) => sectionTitles[key] || key
+
+const plainTextReport = computed(() =>
+    Object.entries(report.value).map(([k, v]) =>
+        `${formatTitle(k)}:\n${v}\n\n`
+    ).join('')
+)
 
 const prompt = `
 You are a skilled psychological guide, trained in Internal Family Systems, Enneagram, Attachment Theory, and Transactional Analysis. You are also fluent in myth, archetype, and symbolic language—able to speak to clients with warmth, insight, and poetic depth.
@@ -59,11 +95,23 @@ Analyze the user's responses below and return a JSON object with these keys:
   "invitation": "..."
 }
 
-Each value should be 2-4 paragraphs. Be clear, poetic, and emotionally elegant. Invite curiosity. Use mythic comparisons gently (e.g., “You carry something of Persephone” or “Your protector echoes Athena”).
+Guidelines for each section:
+
+- "core_profile": Offer a brief integrative summary of the user's personality, tone, and guiding tendencies.
+- "ifs_dynamics": Describe the internal family system at play. Include protectors, exiles, burdens, and glimpses of Self energy.
+- "enneagram_pattern": Identify likely Enneagram type, core vice/fixation, defense strategies, and growth tension.
+- "attachment_style": Describe the user's attachment adaptations—secure, anxious, avoidant, disorganized—and how these show up relationally.
+- "transactional_analysis": Explain key Parent/Adult/Child ego-state dynamics and possible life scripts they follow.
+- "relational_dynamics": Describe the kinds of romantic or emotional partners the user tends to be drawn to, based on their parts, defenses, and early attachment conditioning. Include recurring patterns or dilemmas (e.g., drawn to distance, intensity, control, chaos). Speak symbolically and compassionately. Optionally reference mythic or literary pairs (e.g., 'You may long for Orpheus while guarding your inner Eurydice').
+- "mythic_comparison": Offer a single mythic or archetypal resonance that captures the user’s inner journey.
+- "invitation": End with a poetic, open-ended reflection that invites curiosity and ongoing integration.
+
+Tone: luminous, gentle, emotionally intelligent, and symbolically rich. Avoid diagnosis or prescription—this is a mirror, not a verdict.
 
 User Responses:
 ${JSON.stringify(storedAnswers, null, 2)}
 `
+
 
 onMounted(async () => {
   try {
@@ -90,8 +138,6 @@ onMounted(async () => {
   }
 })
 
-const formatTitle = (key) => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-
 const downloadPDF = () => {
   const element = document.getElementById('report-content')
   html2pdf().from(element).save('inner-constellation.pdf')
@@ -101,7 +147,7 @@ const emailReport = async () => {
   try {
     await axios.post('/api/send-report', {
       email: 'user@example.com',
-      content: JSON.stringify(report.value, null, 2)
+      content: plainTextReport.value
     })
     alert('Report sent to your inbox!')
   } catch (err) {
@@ -110,3 +156,14 @@ const emailReport = async () => {
   }
 }
 </script>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.6s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
