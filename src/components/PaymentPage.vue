@@ -1,13 +1,15 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center px-4 text-center">
-    <div class="max-w-md">
-      <h2 class="text-3xl font-bold mb-4 text-gray-800">Ready for your full report?</h2>
-      <p class="text-lg text-gray-600 mb-6">
-        Unlock all 15-question insights, including relational patterns and IFS-based profiles.
+  <div class="min-h-screen bg-gradient-to-br from-navy to-space-gray text-white font-body px-6 py-20 flex flex-col items-center justify-center text-center">
+    <div class="max-w-md space-y-6">
+      <h2 class="text-4xl font-display text-white drop-shadow-lg">
+        Ready for Your Full Report?
+      </h2>
+      <p class="text-lg text-sky-soft leading-relaxed">
+        Unlock all 15-question insights — including symbolic personality mapping, relational dynamics, and your unique IFS constellation.
       </p>
       <button
           @click="goToCheckout"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition"
+          class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-8 rounded-full shadow-aura transition"
       >
         Proceed to Payment
       </button>
@@ -17,10 +19,12 @@
 
 <script setup>
 async function goToCheckout() {
-  const res = await fetch('http://localhost:4242/api/create-checkout-session', {
-    method: 'POST'
-  });
-  const data = await res.json();
-  window.location.href = data.url;
+  const res = await fetch('/api/create-checkout-session', { method: 'POST' })
+  const data = await res.json()
+  window.location.href = data.url
 }
 </script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap');
+</style>
