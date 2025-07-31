@@ -1,76 +1,39 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4">
-    <div class="text-center max-w-xl w-full">
-      <h2 class="text-2xl font-bold mb-6">
-        Question {{ currentIndex + 1 }} of {{ questions.length }}
-      </h2>
-      <p class="text-lg text-gray-700 mb-6">{{ currentQuestion.text }}</p>
-
-      <div class="space-y-4" v-if="!quizComplete">
-        <button
-            v-for="(option, i) in currentQuestion.options"
-            :key="i"
-            @click="selectOption(option)"
-            class="block w-full bg-white hover:bg-indigo-50 border border-gray-300 px-4 py-3 rounded shadow-sm text-left transition"
-        >
-          {{ option }}
-        </button>
+  <div class="min-h-screen bg-gradient-to-br from-navy to-space-gray text-white font-body px-6 py-20 flex flex-col items-center justify-center">
+    <transition name="fade" mode="out-in">
+      <div :key="currentIndex" class="w-full max-w-xl text-center space-y-8">
+        <h2 class="text-3xl md:text-4xl font-display leading-snug animate-fadeIn">
+          {{ currentQuestion.text }}
+        </h2>
+        <div class="space-y-4">
+          <button
+              v-for="option in currentQuestion.options"
+              :key="option"
+              @click="selectOption(option)"
+              class="block w-full py-3 px-6 bg-periwinkle text-white text-lg rounded-full shadow-aura hover:bg-indigo-400 transition"
+          >
+            {{ option }}
+          </button>
+        </div>
       </div>
-
-      <div v-else class="mt-8">
-        <p class="mb-6 text-green-700 font-medium">You've completed the quiz!</p>
-        <button
-            @click="startCheckout"
-            class="bg-indigo-600 text-white px-6 py-3 rounded shadow hover:bg-indigo-700 transition"
-        >
-          Buy Full Report
-        </button>
-      </div>
-    </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router' // ✅ ADD THIS
+import { useRouter } from 'vue-router'
 
-const router = useRouter()             // ✅ AND THIS
-
+const router = useRouter()
 const questions = [
-  {
-    text: "How do you typically react to stress?",
-    options: ["Withdraw", "Over-plan", "Seek comfort", "Blame others"]
-  },
-  {
-    text: "What motivates you the most?",
-    options: ["Growth", "Peace", "Recognition", "Security"]
-  },
-  {
-    text: "How do you respond to criticism?",
-    options: ["Defensive", "Reflective", "Dismissive", "Anxious"]
-  },
-  {
-    text: "What’s your default emotional state?",
-    options: ["Calm", "Tense", "Cheerful", "Unsettled"]
-  },
-  {
-    text: "What role do you often take in group settings?",
-    options: ["Leader", "Supporter", "Observer", "Mediator"]
-  },
-  {
-    text: "How do you deal with conflict?",
-    options: ["Avoid it", "Confront directly", "Please others", "Shut down"]
-  },
-  {
-    text: "What do you fear most in relationships?",
-    options: ["Rejection", "Abandonment", "Control", "Judgment"]
-  }
+  { text: 'What draws you in the most?', options: ['Harmony', 'Challenge', 'Insight'] },
+  { text: 'Which energy describes you best?', options: ['Grounded', 'Fiery', 'Fluid'] },
+  // Add more questions as needed
 ]
 
 const answers = ref([])
 const currentIndex = ref(0)
 const currentQuestion = computed(() => questions[currentIndex.value])
-const quizComplete = computed(() => currentIndex.value >= questions.length)
 
 function selectOption(option) {
   answers.value.push({ question: currentQuestion.value.text, answer: option })
@@ -79,14 +42,18 @@ function selectOption(option) {
     currentIndex.value++
   } else {
     localStorage.setItem('quizAnswers', JSON.stringify(answers.value))
-    router.push('/quiz-extended') // ✅ this now works
+    router.push('/quiz-extended')
   }
 }
-
-function startCheckout() {
-  window.Outseta.showCheckout({
-    product: 'your-product-id',
-    plan: 'your-plan-id'
-  })
-}
 </script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap');
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>

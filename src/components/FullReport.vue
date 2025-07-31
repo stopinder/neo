@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-br from-midnight to-celestial text-starlight font-serif p-6 flex items-center justify-center">
     <div class="max-w-3xl w-full text-center space-y-8">
       <div>
-        <h2 class="text-4xl font-serif text-starlight mb-2">Your Inner Constellation</h2>
+        <h2 class="text-4xl font-display text-starlight drop-shadow mb-2">Your Inner Constellation</h2>
         <p class="text-starlight/80">A symbolic synthesis of your IFS system, Enneagram type, attachment style, and relational dynamics.</p>
       </div>
 
@@ -16,29 +16,40 @@
           class="text-left bg-gradient-to-br from-celestial to-midnight text-starlight shadow-glow rounded-xl p-6 space-y-6"
       >
         <TransitionGroup name="fade" tag="div">
-          <div v-for="(value, section) in report" :key="section" class="fade-enter-active fade-leave-active">
-            <h3 class="text-xl font-serif font-semibold text-starlight/90 capitalize mt-4">
+          <div v-for="(value, section) in report" :key="section">
+            <h3 class="text-xl font-display font-semibold text-starlight/90 capitalize mt-4">
               {{ formatTitle(section) }}
             </h3>
             <p class="mt-2 whitespace-pre-wrap leading-relaxed text-starlight/90">{{ value }}</p>
           </div>
         </TransitionGroup>
 
-        <!-- Optional: Closing Quote -->
-        <div class="pt-8 border-t border-starlight/20 mt-6">
+        <div class="pt-8 border-t border-starlight/20 mt-6 motion-safe:animate-fadeIn">
           <p class="italic text-starlight/70 text-sm mt-4">
             “You do not have to be good. You only have to let the soft animal of your body love what it loves.”<br />
             — Mary Oliver
           </p>
         </div>
 
-        <!-- Actions -->
-        <div class="flex justify-center gap-4 pt-6">
-          <button class="bg-roseQuartz hover:bg-rose-400 text-white font-semibold px-5 py-2 rounded-md transition" @click="downloadPDF">
-            Download Sacred Map (PDF)
-          </button>
-          <button class="bg-celestial hover:bg-midnight text-white font-semibold px-5 py-2 rounded-md transition" @click="emailReport">
+        <div class="flex flex-col items-center space-y-4 pt-6">
+          <input
+              v-model="userEmail"
+              type="email"
+              placeholder="Enter your email"
+              class="bg-white/10 backdrop-blur border border-white/20 text-white placeholder-white/60 px-4 py-2 rounded-full w-full max-w-sm focus:outline-none focus:ring focus:ring-periwinkle"
+          />
+          <button
+              :disabled="!isEmailValid"
+              @click="emailReport"
+              class="bg-celestial hover:bg-midnight text-white font-semibold px-6 py-3 rounded-full shadow-aura transition disabled:opacity-50"
+          >
             Send to My Inbox
+          </button>
+          <button
+              @click="downloadPDF"
+              class="bg-roseQuartz hover:bg-rose-400 text-white font-semibold px-6 py-3 rounded-full shadow-aura transition"
+          >
+            Download Sacred Map (PDF)
           </button>
         </div>
       </div>
@@ -57,6 +68,7 @@ import html2pdf from 'html2pdf.js'
 
 const report = ref({})
 const loading = ref(true)
+const userEmail = ref('')
 
 const storedAnswers = JSON.parse(localStorage.getItem('quizAnswers'))
 
@@ -72,6 +84,10 @@ const sectionTitles = {
 }
 
 const formatTitle = (key) => sectionTitles[key] || key
+
+const isEmailValid = computed(() =>
+    /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(userEmail.value.trim())
+)
 
 const plainTextReport = computed(() =>
     Object.entries(report.value).map(([k, v]) =>
@@ -102,7 +118,7 @@ Guidelines for each section:
 - "enneagram_pattern": Identify likely Enneagram type, core vice/fixation, defense strategies, and growth tension.
 - "attachment_style": Describe the user's attachment adaptations—secure, anxious, avoidant, disorganized—and how these show up relationally.
 - "transactional_analysis": Explain key Parent/Adult/Child ego-state dynamics and possible life scripts they follow.
-- "relational_dynamics": Describe the kinds of romantic or emotional partners the user tends to be drawn to, based on their parts, defenses, and early attachment conditioning. Include recurring patterns or dilemmas (e.g., drawn to distance, intensity, control, chaos). Speak symbolically and compassionately. Optionally reference mythic or literary pairs (e.g., 'You may long for Orpheus while guarding your inner Eurydice').
+- "relational_dynamics": Describe the kinds of romantic or emotional partners the user tends to be drawn to, based on their parts, defenses, and early attachment conditioning. Include recurring patterns or dilemmas. Optionally reference mythic or literary pairs (e.g., 'You may long for Orpheus while guarding your inner Eurydice').
 - "mythic_comparison": Offer a single mythic or archetypal resonance that captures the user’s inner journey.
 - "invitation": End with a poetic, open-ended reflection that invites curiosity and ongoing integration.
 
@@ -111,7 +127,6 @@ Tone: luminous, gentle, emotionally intelligent, and symbolically rich. Avoid di
 User Responses:
 ${JSON.stringify(storedAnswers, null, 2)}
 `
-
 
 onMounted(async () => {
   try {
@@ -140,13 +155,25 @@ onMounted(async () => {
 
 const downloadPDF = () => {
   const element = document.getElementById('report-content')
-  html2pdf().from(element).save('inner-constellation.pdf')
+  const footer = document.createElement('div')
+  footer.innerHTML = '<p style="margin-top: 2em; font-style: italic; text-align: center; font-size: 12px;">🔮 Generated with GPT-4 insight and inner constellation mapping.</p>'
+  element.appendChild(footer)
+
+  html2pdf().set({
+    margin: 0.5,
+    filename: 'inner-constellation.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  }).from(element).save()
+
+  element.removeChild(footer)
 }
 
 const emailReport = async () => {
   try {
     await axios.post('/api/send-report', {
-      email: 'user@example.com',
+      email: userEmail.value.trim(),
       content: plainTextReport.value
     })
     alert('Report sent to your inbox!')
