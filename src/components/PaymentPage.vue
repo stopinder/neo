@@ -16,9 +16,11 @@
 </template>
 
 <script setup>
-function goToCheckout() {
-  window.location.href = 'https://buy.stripe.com/00w8wO2To4ul2biapCc3m03'
+async function goToCheckout() {
+  const res = await fetch('http://localhost:4242/api/create-checkout-session', {
+    method: 'POST'
+  });
+  const data = await res.json();
+  window.location.href = data.url;
 }
 </script>
-
-
