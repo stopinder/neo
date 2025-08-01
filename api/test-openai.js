@@ -7,7 +7,7 @@ const openai = new OpenAI({
 export default async function handler(req, res) {
     try {
         const chat = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo", // Change to "gpt-4" if you're sure it's enabled
+            model: "gpt-3.5-turbo",
             messages: [
                 { role: "system", content: "You are a helpful assistant." },
                 { role: "user", content: "What is 2 + 2?" }
