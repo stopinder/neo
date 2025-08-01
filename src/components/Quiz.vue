@@ -63,7 +63,8 @@ function selectOption(option) {
     currentIndex.value++
   } else {
     localStorage.setItem('quizAnswers', JSON.stringify(answers.value))
-    router.push('/payment')
+    router.push('/results-snippet')
+
   }
 }
 </script>
