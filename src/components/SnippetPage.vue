@@ -86,8 +86,7 @@ onMounted(() => {
   }
 })
 
-function goDeeper() {
-  router.push('/payment')
+
 }async function goDeeper() {
   const res = await fetch('/api/create-checkout-session', {
     method: 'POST'
