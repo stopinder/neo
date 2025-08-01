@@ -16,6 +16,7 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "html2pdf.js": "^0.10.3",
+    "openai": "^5.11.0",
     "stripe": "^18.4.0",
     "vue": "^3.5.17",
     "vue-router": "^4.5.1"
