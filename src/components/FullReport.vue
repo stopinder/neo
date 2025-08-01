@@ -1,27 +1,40 @@
 from pathlib import Path
 
-# Here's the complete, working version of generate-report.vue
-generate_report_vue = """
+# Final enhanced version of FullReport.vue with:
+# - retry if OpenAI fails
+# - email capture CTA section wired for Brevo (basic form)
+# - graceful loading + fallback
+# - future readiness for payment protection middleware
+
+enhanced_full_report_vue = """
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-ink-night via-midnight to-celestial text-starlight font-poetic p-6">
-    <div class="max-w-3xl mx-auto space-y-10">
+  <div class="min-h-screen bg-gradient-to-br from-ink-night via-midnight to-celestial text-starlight font-poetic p-8 flex items-center justify-center">
+    <div class="w-full max-w-3xl space-y-10">
       <!-- Header -->
-      <div class="text-center space-y-2">
-        <h2 class="text-4xl font-display text-celestial drop-shadow-lg tracking-wide">✨ Your Inner Constellation</h2>
-        <p class="text-starlight/70 italic">A symbolic synthesis of your IFS system, Enneagram type, attachment style, and relational dynamics.</p>
+      <div class="text-center space-y-3">
+        <h1 class="text-4xl font-display drop-shadow-lg text-celestial">🪐 Your Inner Constellation</h1>
+        <p class="text-starlight/80 italic text-lg max-w-xl mx-auto">The map you are about to receive is drawn from patterns older than language, interpreted through symbolic insight and psychological care.</p>
       </div>
 
       <!-- Loading -->
-      <div v-if="loading" class="text-starlight text-lg text-center font-medium animate-pulse">
-        Illuminating your internal landscape...
+      <div v-if="loading" class="text-center py-20">
+        <div class="animate-pulse text-lg italic text-starlight/80 mb-6">
+          ✨ Drawing your chart from the starlit threads of psyche...
+        </div>
+        <div class="w-12 h-12 mx-auto border-4 border-celestial border-t-transparent rounded-full animate-spin"></div>
       </div>
 
-      <!-- Report Display -->
-      <div
-          v-else-if="report && !report.error"
-          id="report-content"
-          class="bg-moon-glow/10 backdrop-blur-md text-starlight rounded-2xl p-6 space-y-10 shadow-halo border border-white/10"
-      >
+      <!-- Error with retry -->
+      <div v-else-if="report && report.error" class="text-center text-rose-300 font-medium space-y-4">
+        <p>{{ report.error }}</p>
+        <button @click="generateReport" class="bg-roseQuartz text-white px-5 py-2 rounded-full shadow-md hover:bg-rose-400 transition">
+          🔄 Try Again
+        </button>
+        <p class="text-sm text-starlight/50">Still stuck? <a href="mailto:support@heliosynthesis.org" class="underline">Email support</a></p>
+      </div>
+
+      <!-- Report display -->
+      <div v-else id="report-content" class="bg-white/5 backdrop-blur-lg rounded-xl shadow-halo p-6 space-y-10 border border-white/10">
         <TransitionGroup name="fade" tag="div" class="space-y-10">
           <div v-for="(value, section) in report" :key="section">
             <h3 class="text-2xl font-display text-sun-gold border-b border-starlight/20 pb-1 mb-3">
@@ -33,9 +46,9 @@ generate_report_vue = """
           </div>
         </TransitionGroup>
 
-        <!-- Quote Footer -->
-        <div class="pt-10 border-t border-starlight/10 mt-8">
-          <p class="italic text-starlight/60 text-center text-sm mt-6">
+        <!-- Footer Quote -->
+        <div class="pt-10 border-t border-starlight/10 mt-8 text-center">
+          <p class="italic text-starlight/60 text-sm mt-6">
             “You do not have to be good. You only have to let the soft animal of your body love what it loves.”<br />
             — Mary Oliver
           </p>
@@ -47,27 +60,34 @@ generate_report_vue = """
               v-model="userEmail"
               type="email"
               placeholder="Enter your email"
-              class="bg-white/5 text-white placeholder-white/40 border border-white/20 px-4 py-2 rounded-full w-full max-w-sm focus:outline-none focus:ring focus:ring-periwinkle"
+              class="bg-white/10 text-white placeholder-white/40 border border-white/20 px-4 py-2 rounded-full w-full max-w-sm focus:outline-none focus:ring focus:ring-periwinkle"
           />
           <button
               :disabled="!isEmailValid"
               @click="emailReport"
               class="bg-celestial hover:bg-periwinkle text-ink-night font-semibold px-6 py-3 rounded-full shadow-aura transition disabled:opacity-50"
           >
-            Send to My Inbox
+            ✉️ Send to My Inbox
           </button>
           <button
               @click="downloadPDF"
               class="bg-roseQuartz hover:bg-rose-400 text-white font-semibold px-6 py-3 rounded-full shadow-aura transition"
           >
-            Download Sacred Map (PDF)
+            ⬇️ Download Sacred Map (PDF)
           </button>
         </div>
-      </div>
 
-      <!-- Error -->
-      <div v-else class="text-rose-300 font-medium text-center">
-        {{ report.error || 'Something went wrong while illuminating your inner terrain.' }}
+        <!-- Brevo CTA -->
+        <div class="pt-10 border-t border-starlight/10 mt-8 text-center">
+          <p class="text-starlight/80 text-lg mb-2 font-semibold">🌌 Stay connected to the mythic thread</p>
+          <p class="text-starlight/60 text-sm mb-4">Occasional insights, lunar reflections, and constellation updates—direct to your inbox.</p>
+          <form action="https://YOUR-BREVO-ENDPOINT" method="POST" target="_blank" class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-3">
+            <input type="email" name="EMAIL" required placeholder="Your email" class="bg-white/10 text-white placeholder-white/50 px-4 py-2 rounded-full w-full max-w-xs border border-white/20" />
+            <button type="submit" class="bg-periwinkle hover:bg-celestial text-ink-night font-semibold px-5 py-2 rounded-full shadow-aura transition">
+              🔭 Join the Orbit
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -96,8 +116,7 @@ const sectionTitles = {
 const formatTitle = (key) => sectionTitles[key] || key;
 
 const isEmailValid = computed(() =>
-    /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/.test(userEmail.value.trim())
-
+    /^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$/.test(userEmail.value.trim())
 );
 
 const plainTextReport = computed(() =>
@@ -107,19 +126,15 @@ const plainTextReport = computed(() =>
 );
 
 onMounted(async () => {
-  const storedAnswersRaw = localStorage.getItem('quizAnswers');
-  let storedAnswers;
+  await generateReport();
+});
 
+const generateReport = async () => {
+  loading.value = true;
   try {
-    storedAnswers = JSON.parse(storedAnswersRaw);
+    const storedAnswersRaw = localStorage.getItem('quizAnswers');
+    const storedAnswers = JSON.parse(storedAnswersRaw);
     if (!Array.isArray(storedAnswers) || storedAnswers.length === 0) throw new Error();
-  } catch (e) {
-    report.value = { error: 'No quiz data found. Please retake the quiz.' };
-    loading.value = false;
-    return;
-  }
-
-  try {
     const response = await axios.post('/api/generate-report', { answers: storedAnswers });
     report.value = response.data;
   } catch (error) {
@@ -128,7 +143,7 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
-});
+};
 
 const downloadPDF = () => {
   const element = document.getElementById('report-content');
@@ -171,7 +186,5 @@ const emailReport = async () => {
 </style>
 """
 
-# Save to file
-path = Path("/mnt/data/generate-report.vue")
-path.write_text(generate_report_vue.strip())
-path.name
+Path("/mnt/data/FullReport.vue").write_text(enhanced_full_report_vue.strip())
+"FullReport.vue"
