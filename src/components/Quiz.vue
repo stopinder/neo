@@ -13,7 +13,8 @@
               v-for="option in currentQuestion.options"
               :key="option"
               @click="selectOption(option)"
-              class="block w-full py-3 px-6 bg-periwinkle text-white text-lg rounded-full shadow-aura hover:bg-indigo-400 transition"
+              :disabled="isLocked"
+              class="block w-full py-3 px-6 bg-periwinkle text-white text-lg rounded-full shadow-aura hover:bg-indigo-400 transition disabled:opacity-50"
           >
             {{ option }}
           </button>
@@ -54,18 +55,24 @@ const questions = [
 
 const answers = ref([])
 const currentIndex = ref(0)
+const isLocked = ref(false)
 const currentQuestion = computed(() => questions[currentIndex.value])
 
 function selectOption(option) {
+  if (isLocked.value) return
+  isLocked.value = true
+
   answers.value.push({ question: currentQuestion.value.text, answer: option })
 
-  if (currentIndex.value < questions.length - 1) {
-    currentIndex.value++
-  } else {
-    localStorage.setItem('quizAnswers', JSON.stringify(answers.value))
-    router.push('/results-snippet')
-
-  }
+  setTimeout(() => {
+    if (currentIndex.value < questions.length - 1) {
+      currentIndex.value++
+      isLocked.value = false
+    } else {
+      localStorage.setItem('quizAnswers', JSON.stringify(answers.value))
+      router.push('/results-snippet')
+    }
+  }, 400) // slight delay for fade effect
 }
 </script>
 

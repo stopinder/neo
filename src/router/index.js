@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../components/LandingPage.vue'
 import Quiz from '../components/Quiz.vue'
 import SnippetPage from '../components/SnippetPage.vue'
-import UpsellScreen from '../components/UpsellScreen.vue'
+
 import PaymentPage from '../components/PaymentPage.vue'
 import FullReport from '../components/FullReport.vue'
 
