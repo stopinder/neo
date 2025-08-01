@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     const prompt = `
 You are a skilled psychological guide synthesizing Enneagram, Internal Family Systems (IFS), Attachment Theory, and Transactional Analysis. Create a symbolic, insightful psychological report in 8 sections. The tone is poetic yet precise.
 
-Sections: 
+Sections:
 1. ✨ Core Profile
 2. 🛡️ IFS Dynamics
 3. 🌿 Enneagram Pattern
@@ -31,7 +31,9 @@ Sections:
 
 User Responses:
 ${JSON.stringify(answers, null, 2)}
-Please return only a JSON object with each of the 8 sections as keys.`
+
+Please return a JSON object with the section names as keys and paragraph values.
+`
 
     try {
         const completion = await openai.createChatCompletion({
@@ -42,7 +44,7 @@ Please return only a JSON object with each of the 8 sections as keys.`
         const content = completion.data.choices[0].message.content.trim()
         const json = JSON.parse(content)
 
-        res.status(200).json({ report: json })
+        res.status(200).json(json) // ✅ return the report directly
     } catch (error) {
         console.error('OpenAI error:', error)
         res.status(500).json({ error: 'Failed to generate report' })

@@ -10,11 +10,8 @@
         Illuminating your internal landscape...
       </div>
 
-      <div
-          v-else-if="report && !report.error"
-          id="report-content"
-          class="text-left bg-gradient-to-br from-celestial to-midnight text-starlight shadow-glow rounded-xl p-6 space-y-6"
-      >
+      <div v-else-if="report && !report.error" id="report-content"
+           class="text-left bg-gradient-to-br from-celestial to-midnight text-starlight shadow-glow rounded-xl p-6 space-y-6">
         <TransitionGroup name="fade" tag="div">
           <div v-for="(value, section) in report" :key="section">
             <h3 class="text-xl font-display font-semibold text-starlight/90 capitalize mt-4">
@@ -32,23 +29,14 @@
         </div>
 
         <div class="flex flex-col items-center space-y-4 pt-6">
-          <input
-              v-model="userEmail"
-              type="email"
-              placeholder="Enter your email"
-              class="bg-white/10 backdrop-blur border border-white/20 text-white placeholder-white/60 px-4 py-2 rounded-full w-full max-w-sm focus:outline-none focus:ring focus:ring-periwinkle"
-          />
-          <button
-              :disabled="!isEmailValid"
-              @click="emailReport"
-              class="bg-celestial hover:bg-midnight text-white font-semibold px-6 py-3 rounded-full shadow-aura transition disabled:opacity-50"
-          >
+          <input v-model="userEmail" type="email" placeholder="Enter your email"
+                 class="bg-white/10 backdrop-blur border border-white/20 text-white placeholder-white/60 px-4 py-2 rounded-full w-full max-w-sm focus:outline-none focus:ring focus:ring-periwinkle" />
+          <button :disabled="!isEmailValid" @click="emailReport"
+                  class="bg-celestial hover:bg-midnight text-white font-semibold px-6 py-3 rounded-full shadow-aura transition disabled:opacity-50">
             Send to My Inbox
           </button>
-          <button
-              @click="downloadPDF"
-              class="bg-roseQuartz hover:bg-rose-400 text-white font-semibold px-6 py-3 rounded-full shadow-aura transition"
-          >
+          <button @click="downloadPDF"
+                  class="bg-roseQuartz hover:bg-rose-400 text-white font-semibold px-6 py-3 rounded-full shadow-aura transition">
             Download Sacred Map (PDF)
           </button>
         </div>
@@ -110,10 +98,10 @@ onMounted(async () => {
     const response = await axios.post('/api/generate-report', {
       answers: storedAnswers
     })
-    report.value = response.data.report
+    report.value = response.data
   } catch (error) {
-    report.value = { error: 'Something went wrong while illuminating your inner terrain.' }
     console.error(error)
+    report.value = { error: 'Something went wrong while illuminating your inner terrain.' }
   } finally {
     loading.value = false
   }
@@ -149,8 +137,6 @@ const emailReport = async () => {
   }
 }
 </script>
-
-
 
 <style>
 .fade-enter-active,
