@@ -34,11 +34,12 @@
           <li>Shadow integration & healing themes</li>
         </ul>
         <button
+            class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
             @click="goDeeper"
-            class="mt-4 bg-periwinkle hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-semibold transition"
         >
-          Unlock Full Report – £10.99
+          Unlock Your Full Report
         </button>
+
       </div>
     </div>
   </div>
@@ -87,7 +88,18 @@ onMounted(() => {
 
 function goDeeper() {
   router.push('/payment')
+}async function goDeeper() {
+  const res = await fetch('/api/create-checkout-session', {
+    method: 'POST'
+  })
+  const data = await res.json()
+  if (data.url) {
+    window.location.href = data.url
+  } else {
+    alert('Stripe checkout failed.')
+  }
 }
+
 </script>
 
 <style scoped>
