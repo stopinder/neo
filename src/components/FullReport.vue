@@ -106,28 +106,11 @@ onMounted(async () => {
     return
   }
 
-  const prompt = `
-You are a skilled psychological guide... (same full prompt body you already have)
-User Responses:
-${JSON.stringify(storedAnswers, null, 2)}
-`
-
   try {
-    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-4',
-      messages: [{ role: 'user', content: prompt }]
-    }, {
-      headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
+    const response = await axios.post('/api/generate-report', {
+      answers: storedAnswers
     })
-
-    try {
-      report.value = JSON.parse(response.data.choices[0].message.content)
-    } catch (err) {
-      report.value = { error: 'The report could not be parsed correctly.' }
-    }
+    report.value = response.data.report
   } catch (error) {
     report.value = { error: 'Something went wrong while illuminating your inner terrain.' }
     console.error(error)
@@ -166,6 +149,7 @@ const emailReport = async () => {
   }
 }
 </script>
+
 
 
 <style>
