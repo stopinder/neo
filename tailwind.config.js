@@ -17,6 +17,9 @@ export default {
         'ether': '#e2d9f3',
         'sun-gold': '#d9af6b',
         'ink-night': '#0d1321',
+        'midnight': '#1b1e33',     // ✅ Added
+        'celestial': '#3c4a73',    // ✅ Added
+        'roseQuartz': '#e0aebb',
       },
       fontFamily: {
         display: ['"Playfair Display"', 'serif'],
