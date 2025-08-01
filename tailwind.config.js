@@ -2,7 +2,9 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
+    "./**/*.vue"  // 👈 this ensures any stray Vue files are picked up
   ],
+
   theme: {
     extend: {
       colors: {
