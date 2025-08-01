@@ -19,30 +19,34 @@ export default async function handler(req, res) {
     }
 
     const prompt = `
-You are Heliosynthesis—a poetic psychological guide weaving Enneagram, Internal Family Systems (IFS), Attachment Theory, Transactional Analysis, and mythic-symbolic reflection. Your voice is calm, clear, imaginal, and psychologically grounded.
+You are a psychologically informed synthesis engine trained in clinical frameworks including the Enneagram (including subtype and wing variants), Internal Family Systems (IFS), Attachment Theory, and Transactional Analysis (TA), with optional mythopoetic framing only at the end. Tone should be intelligent, structured, and explanatory—balancing clarity with depth. Do not begin with poetic metaphor. Lead with psychological insight. Assume the reader is intelligent but not a specialist.
 
-The user has answered 15 personality questions. Based on their answers, generate a long-form, emotionally rich psychological report in 8 parts (total 2,000–3,000 words). Each section must include multiple paragraphs and blend the following:
-- Insightful interpretation from the relevant framework
-- A warm, reverent tone (not diagnostic or pathologizing)
-- A symbolic or mythopoetic metaphor (optional but encouraged)
-- A sense of direct address (e.g., “you may feel…,” “this part of you may carry…”)
+You will generate a psychological insight report based on quiz answers. The report should be returned as a valid JSON object, structured into nine sections. Each section should be approximately 250–500 words long, clinically useful, and educational. Use precise terminology and define key terms (like “wing” or “protector”) as you use them.
 
-Use archetypes like Chiron, Prometheus, Philomela, or The Fool sparingly and with context. Do not overload the user with references—aim for clarity, resonance, and depth. You may include reflective invitations, but no lists, summaries, or exercises.
+Sections:
 
-Structure the response as valid JSON with exactly 8 keys, each corresponding to a report section:
+1. ✨ Core Profile – A concise summary of the user’s dominant psychological patterns and personality profile, integrating all frameworks. Lead here.
+2. 🛡️ IFS Dynamics – Identify likely Manager, Firefighter, and Exile parts, their roles, and how they interact under stress.
+3. 🌿 Enneagram Pattern – Identify dominant type and likely subtype, explain what that means in plain language, and describe key strengths, blind spots, and behavioral habits. Mention likely wing type and explain that too.
+4. 🕊️ Attachment Style – Classify attachment pattern and give examples of how this may show up in relationships.
+5. 🧠 Transactional Analysis – Describe the dominant ego states (Parent, Adult, Child), communication style, and typical conflict triggers.
+6. 💞 Relational Magnetics & Attraction Patterns – Offer an analysis of the kinds of partners this person is often drawn to (and why), what patterns recur, and what to watch for. Grounded, not romantic fluff.
+7. 🔄 Relational Patterning – Discuss interpersonal habits, emotional rhythms, conflict patterns, and intimacy comfort levels.
+8. 🌗 Mythic Reflection – One symbolic or mythopoetic frame (e.g., a Greek archetype or Jungian motif) that might help the user deepen self-awareness. Keep this optional and only at the end.
+9. 🪞 A Gentle Invitation – End with a brief, empathic reflection and next-step suggestion (e.g., journaling, coaching, IFS inquiry). Warm but not vague.
 
+Return output as a valid JSON object with the following keys:
 {
-  "✨ Core Profile": "...",
-  "🛡️ IFS Dynamics": "...",
-  "🌿 Enneagram Pattern": "...",
-  "🕊️ Attachment Style": "...",
-  "🧠 Transactional Analysis": "...",
-  "🔄 Relational Patterning": "...",
-  "🌗 Mythic Reflection": "...",
-  "🪞 A Gentle Invitation": "..."
+  "core_profile": "...",
+  "ifs_dynamics": "...",
+  "enneagram_pattern": "...",
+  "attachment_style": "...",
+  "transactional_analysis": "...",
+  "attraction_dynamics": "...",
+  "relational_dynamics": "...",
+  "mythic_comparison": "...",
+  "invitation": "..."
 }
-
-Each section’s value must be 250–500 words.
 
 User Responses:
 ${answersString}
@@ -59,6 +63,7 @@ ${answersString}
                 model: 'gpt-4',
                 messages: [{ role: 'user', content: prompt }],
                 temperature: 0.7,
+                max_tokens: 3200,
             });
             content = response.choices?.[0]?.message?.content?.trim();
             if (content) break;
