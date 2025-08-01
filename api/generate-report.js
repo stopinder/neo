@@ -1,28 +1,25 @@
-import OpenAI from 'openai'
-
+import OpenAI from 'openai';
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
-})
-
-
-const openai = new OpenAIApi(configuration)
+});
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' })
+        return res.status(405).json({ error: 'Only POST allowed' });
     }
 
-    const { answers } = req.body
+    const { answers } = req.body;
 
     if (!answers || !Array.isArray(answers)) {
-        return res.status(400).json({ error: 'Invalid or missing answers array' })
+        console.error('Invalid answers:', answers);
+        return res.status(400).json({ error: 'Invalid or missing answers array' });
     }
 
     const prompt = `
 You are a skilled psychological guide synthesizing Enneagram, Internal Family Systems (IFS), Attachment Theory, and Transactional Analysis. Create a symbolic, insightful psychological report in 8 sections. The tone is poetic yet precise.
 
-Sections: 
+Sections:
 1. ✨ Core Profile
 2. 🛡️ IFS Dynamics
 3. 🌿 Enneagram Pattern
@@ -35,27 +32,27 @@ Sections:
 User Responses:
 ${JSON.stringify(answers, null, 2)}
 
-Please return only a JSON object with each of the 8 sections as keys.
-`
+Please return a valid JSON object with keys matching the sections.
+`;
 
     try {
-        const completion = await openai.createChatCompletion({
+        const response = await openai.chat.completions.create({
             model: 'gpt-4',
             messages: [{ role: 'user', content: prompt }],
-            temperature: 0.8
-        })
+            temperature: 0.7
+        });
 
-        const content = completion.data.choices[0]?.message?.content?.trim()
-
+        const content = response.choices?.[0]?.message?.content?.trim();
         if (!content) {
-            throw new Error('OpenAI returned empty content')
+            console.error('Empty content from OpenAI:', response);
+            return res.status(500).json({ error: 'Empty response from OpenAI' });
         }
 
-        const json = JSON.parse(content)
+        const parsed = JSON.parse(content);
+        return res.status(200).json(parsed);
 
-        res.status(200).json({ report: json })
     } catch (error) {
-        console.error('🔥 generate-report error:', error)
-        res.status(500).json({ error: error.message || 'Failed to generate report' })
+        console.error('OpenAI error:', error);
+        return res.status(500).json({ error: error.message || 'Failed to generate report' });
     }
 }
