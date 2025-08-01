@@ -70,8 +70,6 @@ const report = ref({})
 const loading = ref(true)
 const userEmail = ref('')
 
-const storedAnswers = JSON.parse(localStorage.getItem('quizAnswers'))
-
 const sectionTitles = {
   core_profile: "✨ Core Profile",
   ifs_dynamics: "🛡️ IFS Dynamics",
@@ -95,40 +93,25 @@ const plainTextReport = computed(() =>
     ).join('')
 )
 
-const prompt = `
-You are a skilled psychological guide, trained in Internal Family Systems, Enneagram, Attachment Theory, and Transactional Analysis. You are also fluent in myth, archetype, and symbolic language—able to speak to clients with warmth, insight, and poetic depth.
+onMounted(async () => {
+  const storedAnswersRaw = localStorage.getItem('quizAnswers')
+  let storedAnswers
 
-Analyze the user's responses below and return a JSON object with these keys:
+  try {
+    storedAnswers = JSON.parse(storedAnswersRaw)
+    if (!Array.isArray(storedAnswers) || storedAnswers.length === 0) throw new Error()
+  } catch (e) {
+    report.value = { error: 'No quiz data found. Please retake the quiz.' }
+    loading.value = false
+    return
+  }
 
-{
-  "core_profile": "...",
-  "ifs_dynamics": "...",
-  "enneagram_pattern": "...",
-  "attachment_style": "...",
-  "transactional_analysis": "...",
-  "relational_dynamics": "...",
-  "mythic_comparison": "...",
-  "invitation": "..."
-}
-
-Guidelines for each section:
-
-- "core_profile": Offer a brief integrative summary of the user's personality, tone, and guiding tendencies.
-- "ifs_dynamics": Describe the internal family system at play. Include protectors, exiles, burdens, and glimpses of Self energy.
-- "enneagram_pattern": Identify likely Enneagram type, core vice/fixation, defense strategies, and growth tension.
-- "attachment_style": Describe the user's attachment adaptations—secure, anxious, avoidant, disorganized—and how these show up relationally.
-- "transactional_analysis": Explain key Parent/Adult/Child ego-state dynamics and possible life scripts they follow.
-- "relational_dynamics": Describe the kinds of romantic or emotional partners the user tends to be drawn to, based on their parts, defenses, and early attachment conditioning. Include recurring patterns or dilemmas. Optionally reference mythic or literary pairs (e.g., 'You may long for Orpheus while guarding your inner Eurydice').
-- "mythic_comparison": Offer a single mythic or archetypal resonance that captures the user’s inner journey.
-- "invitation": End with a poetic, open-ended reflection that invites curiosity and ongoing integration.
-
-Tone: luminous, gentle, emotionally intelligent, and symbolically rich. Avoid diagnosis or prescription—this is a mirror, not a verdict.
-
+  const prompt = `
+You are a skilled psychological guide... (same full prompt body you already have)
 User Responses:
 ${JSON.stringify(storedAnswers, null, 2)}
 `
 
-onMounted(async () => {
   try {
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
       model: 'gpt-4',
@@ -183,6 +166,7 @@ const emailReport = async () => {
   }
 }
 </script>
+
 
 <style>
 .fade-enter-active,
