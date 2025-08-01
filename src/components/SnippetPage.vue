@@ -39,7 +39,6 @@
         >
           Unlock Your Full Report
         </button>
-
       </div>
     </div>
   </div>
@@ -47,10 +46,8 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import ConstellationDiagram from '../components/ConstellationDiagram.vue'
 
-const router = useRouter()
 const insights = ref([])
 
 onMounted(() => {
@@ -86,8 +83,7 @@ onMounted(() => {
   }
 })
 
-
-}async function goDeeper() {
+async function goDeeper() {
   const res = await fetch('/api/create-checkout-session', {
     method: 'POST'
   })
@@ -98,10 +94,8 @@ onMounted(() => {
     alert('Stripe checkout failed.')
   }
 }
-
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap');
 </style>
-
