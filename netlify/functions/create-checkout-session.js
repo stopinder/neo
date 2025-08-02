@@ -12,8 +12,9 @@ exports.handler = async function (event) {
                     quantity: 1,
                 },
             ],
-            success_url: `${event.headers.origin}/payment-success`,
-            cancel_url: `${event.headers.origin}/cancel`,
+            success_url: 'https://neo-new.netlify.app/payment-success',
+            cancel_url: 'https://neo-new.netlify.app/cancel',
+
         });
 
         return {
