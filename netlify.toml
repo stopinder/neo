@@ -17,3 +17,8 @@
   from = "/payment-success"
   to = "/set-paid-cookie"
   status = 302
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
