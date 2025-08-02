@@ -2,20 +2,34 @@ import OpenAI from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Only POST allowed' });
+export const handler = async (event) => {
+    if (event.httpMethod !== 'POST') {
+        return {
+            statusCode: 405,
+            body: JSON.stringify({ error: 'Only POST allowed' }),
+        };
     }
 
-    const { answers } = req.body;
-
-    if (!answers || !Array.isArray(answers)) {
-        return res.status(400).json({ error: 'Invalid or missing answers' });
+    let answers;
+    try {
+        const body = JSON.parse(event.body);
+        answers = body.answers;
+        if (!Array.isArray(answers)) {
+            throw new Error('Invalid or missing answers');
+        }
+    } catch {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'Invalid JSON or answers' }),
+        };
     }
 
     const answersString = JSON.stringify(answers, null, 2);
     if (answersString.length > 10000) {
-        return res.status(413).json({ error: 'Answers too large.' });
+        return {
+            statusCode: 413,
+            body: JSON.stringify({ error: 'Answers too large.' }),
+        };
     }
 
     const prompt = `
@@ -52,10 +66,6 @@ User Responses:
 ${answersString}
 `;
 
-    if (process.env.NODE_ENV !== 'production') {
-        console.log('GPT prompt:\n', prompt);
-    }
-
     try {
         let content;
         for (let i = 0; i < 2; i++) {
@@ -70,18 +80,30 @@ ${answersString}
         }
 
         if (!content) {
-            return res.status(502).json({ error: 'No response from OpenAI after retry.' });
+            return {
+                statusCode: 502,
+                body: JSON.stringify({ error: 'No response from OpenAI after retry.' }),
+            };
         }
 
         try {
             const parsed = JSON.parse(content);
-            return res.status(200).json(parsed);
+            return {
+                statusCode: 200,
+                body: JSON.stringify(parsed),
+            };
         } catch (parseError) {
             console.error('Invalid JSON from OpenAI:', content);
-            return res.status(500).json({ error: 'Invalid JSON returned by OpenAI.' });
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: 'Invalid JSON returned by OpenAI.' }),
+            };
         }
     } catch (error) {
         console.error('OpenAI error:', error);
-        return res.status(500).json({ error: 'Report generation failed.' });
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Report generation failed.' }),
+        };
     }
-}
+};
