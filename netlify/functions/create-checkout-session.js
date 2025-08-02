@@ -9,23 +9,22 @@ exports.handler = async function (event) {
             line_items: [
                 {
                     price: 'price_1RrZ8yPS3rVEOBKXGrfiUKcG',
-                    quantity: 1
-                }
+                    quantity: 1,
+                },
             ],
             success_url: `${event.headers.origin}/payment-success`,
-            cancel_url: `${event.headers.origin}/cancel`
+            cancel_url: `${event.headers.origin}/cancel`,
         });
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ url: session.url })
+            body: JSON.stringify({ url: session.url }),
         };
     } catch (err) {
         console.error('Stripe error:', err.message);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: err.message })
+            body: JSON.stringify({ error: err.message }),
         };
     }
 };
-// trigger redeploy
