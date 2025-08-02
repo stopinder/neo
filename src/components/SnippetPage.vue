@@ -84,16 +84,17 @@ onMounted(() => {
 })
 
 async function goDeeper() {
-  const res = await fetch('/api/create-checkout-session', {
-    method: 'POST'
-  })
-  const data = await res.json()
-  if (data.url) {
-    window.location.href = data.url
-  } else {
-    alert('Stripe checkout failed.')
+  try {
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST'
+    });
+    const data = await res.json();
+    window.location.href = data.url; // Redirect to Stripe checkout
+  } catch (err) {
+    console.error('Failed to redirect to Stripe:', err);
   }
 }
+
 </script>
 
 <style scoped>
