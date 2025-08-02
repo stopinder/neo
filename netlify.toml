@@ -1,0 +1,19 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/set-paid-cookie"
+  to = "/.netlify/functions/set-paid-cookie"
+  status = 200
+
+[[redirects]]
+  from = "/payment-success"
+  to = "/set-paid-cookie"
+  status = 302

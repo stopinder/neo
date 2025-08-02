@@ -85,15 +85,17 @@ onMounted(() => {
 
 async function goDeeper() {
   try {
-    const res = await fetch('/api/create-checkout-session', {
+    const res = await fetch('/.netlify/functions/create-checkout-session', {
       method: 'POST'
     });
     const data = await res.json();
-    window.location.href = data.url; // Redirect to Stripe checkout
+    if (!data.url) throw new Error('Stripe URL missing');
+    window.location.href = data.url;
   } catch (err) {
-    console.error('Failed to redirect to Stripe:', err);
+    console.error('Stripe redirect failed:', err);
   }
 }
+
 
 </script>
 

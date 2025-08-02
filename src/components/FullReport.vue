@@ -60,10 +60,11 @@ import axios from 'axios'
 import html2pdf from 'html2pdf.js'
 onBeforeMount(() => {
   const cookies = document.cookie.split(';').map(c => c.trim())
-  const paid = cookies.find(c => c.startsWith('hasPaid='))
+  const paid = cookies.find(c => c.startsWith('paid='))
   if (!paid || !paid.endsWith('true')) {
-    window.location.href = '/paywall' // or your actual paywall route
+    window.location.href = '/paywall'
   }
+
 })
 
 const report = ref({})
