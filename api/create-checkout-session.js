@@ -22,9 +22,9 @@ export default async function handler(req, res) {
                     quantity: 1,
                 },
             ],
-            success_url: `${req.headers.origin}/api/set-paid-cookie?redirect=/full-report`
-
+            success_url: `${req.headers.origin}/api/set-paid-cookie?redirect=/full-report`,
             cancel_url: `${req.headers.origin}/cancel`,
+
         })
 
         return res.status(200).json({ url: session.url })
