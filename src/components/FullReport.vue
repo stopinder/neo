@@ -58,6 +58,13 @@ full_report_vue = """
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import html2pdf from 'html2pdf.js'
+onBeforeMount(() => {
+  const cookies = document.cookie.split(';').map(c => c.trim())
+  const paid = cookies.find(c => c.startsWith('hasPaid='))
+  if (!paid || !paid.endsWith('true')) {
+    window.location.href = '/paywall' // or your actual paywall route
+  }
+})
 
 const report = ref({})
 const loading = ref(true)
