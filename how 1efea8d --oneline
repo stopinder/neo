@@ -1,0 +1,16 @@
+[33mdf77ce5[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Fix quiz redirect to /full-report
+[1mdiff --git a/src/components/Quiz.vue b/src/components/Quiz.vue[m
+[1mindex 04d0f13..9980339 100644[m
+[1m--- a/src/components/Quiz.vue[m
+[1m+++ b/src/components/Quiz.vue[m
+[36m@@ -74,7 +74,9 @@[m [mfunction selectOption(option) {[m
+       isLocked.value = false[m
+     } else {[m
+       localStorage.setItem('quizAnswers', JSON.stringify(answers.value))[m
+[31m-      router.push('/results-snippet')[m
+[32m+[m[32m      router.push('/full-report')[m
+[32m+[m
+[32m+[m
+     }[m
+   }, 400)[m
+ }[m
