@@ -1,7 +1,3 @@
-# force redeploy
-[build]
-...
-
 [build]
   command = "npm run build"
   publish = "dist"
