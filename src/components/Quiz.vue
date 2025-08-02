@@ -74,7 +74,9 @@ function selectOption(option) {
       isLocked.value = false
     } else {
       localStorage.setItem('quizAnswers', JSON.stringify(answers.value))
-      router.push('/results-snippet')
+      router.push('/full-report')
+
+
     }
   }, 400)
 }
