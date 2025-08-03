@@ -31,10 +31,7 @@ export default {
         glow: '0 0 20px rgba(255, 255, 255, 0.1)',
         halo: '0 0 60px rgba(255, 245, 220, 0.1)',
       },
-      backgroundImage: {
-        'stars': "url('/assets/stars-bg.svg')",
-        'paper-texture': "url('/assets/paper-fiber.png')",
-      },
+
       animation: {
         fadeIn: 'fadeIn 2s ease-in forwards',
         slowPulse: 'slowPulse 6s ease-in-out infinite',

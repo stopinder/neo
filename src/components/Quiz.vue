@@ -37,21 +37,66 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const questions = [
-  { text: 'What draws you in the most?', options: ['Harmony', 'Challenge', 'Insight'] },
-  { text: 'Which energy describes you best?', options: ['Grounded', 'Fiery', 'Fluid'] },
-  { text: "What quality do you most seek in a partner?", options: ["Loyalty", "Excitement", "Emotional depth", "Stability"] },
-  { text: "How do you handle emotional vulnerability?", options: ["Avoid it", "Embrace it", "Overthink it", "Downplay it"] },
-  { text: "Which best describes your communication style?", options: ["Direct", "Diplomatic", "Reserved", "Expressive"] },
-  { text: "When hurt, you tend to...", options: ["Withdraw", "Confront", "Overcompensate", "Shut down"] },
-  { text: "What do you crave most in life?", options: ["Purpose", "Harmony", "Freedom", "Connection"] },
-  { text: "What kind of people are you often drawn to?", options: ["Strong and silent", "Outgoing and fun", "Nurturing and caring", "Ambitious and driven"] },
-  { text: "Your biggest internal conflict is between...", options: ["Self and others", "Logic and emotion", "Freedom and safety", "Control and surrender"] },
-  { text: "What kind of relationship dynamic drains you?", options: ["Too clingy", "Too distant", "Too chaotic", "Too controlling"] },
-  { text: "How do you respond to conflict?", options: ["Shut down", "Get defensive", "Try to fix it", "Seek space"] },
-  { text: "In a group, you often feel like the...", options: ["Leader", "Mediator", "Outsider", "Connector"] },
-  { text: "How do you recharge best?", options: ["Alone time", "Deep conversation", "Physical activity", "Creative expression"] },
-  { text: "Which mythic figure resonates most with you?", options: ["The Seeker", "The Healer", "The Warrior", "The Sage"] },
-  { text: "What inner voice do you hear most?", options: ["Be perfect", "Be safe", "Be needed", "Be strong"] }
+  {
+    text: "When life feels chaotic, what gives you a sense of stability?",
+    options: ["Having a clear role or identity", "Pushing yourself to succeed", "Understanding what’s really going on"]
+  },
+  {
+    text: "You’re drawn to people who…",
+    options: ["Keep things calm and harmonious", "Challenge your thinking", "See the deeper layers of life"]
+  },
+  {
+    text: "In relationships, what do you crave most consistently?",
+    options: ["Loyalty through thick and thin", "Emotional intensity and passion", "Depth and mutual understanding", "Safety and predictability"]
+  },
+  {
+    text: "When you feel emotionally exposed, what’s your instinct?",
+    options: ["Keep things light or joke it off", "Pull back and protect yourself", "Analyze what just happened", "Try to connect more deeply"]
+  },
+  {
+    text: "When someone misunderstands you, how do you usually respond?",
+    options: ["Clarify calmly", "Get frustrated or withdrawn", "Over-explain or apologize", "Try to fix it quickly"]
+  },
+  {
+    text: "When something painful happens, what helps you cope?",
+    options: ["Being alone to process", "Taking action or staying busy", "Reassurance from someone you trust", "Making sense of it logically"]
+  },
+  {
+    text: "Which of these energizes you most?",
+    options: ["Feeling aligned with purpose", "Being in sync with others", "Freedom to explore", "Deep connection"]
+  },
+  {
+    text: "You often find yourself attracted to people who…",
+    options: ["Are steady and grounded", "Bring excitement and fun", "Feel nurturing and safe", "Are driven and ambitious"]
+  },
+  {
+    text: "Your biggest internal conflict is usually between…",
+    options: ["Self and others", "Logic and emotion", "Freedom and safety", "Control and surrender"]
+  },
+  {
+    text: "What kind of dynamic drains you most?",
+    options: ["Too clingy", "Too distant", "Too chaotic", "Too controlling"]
+  },
+  {
+    text: "How do you usually respond to conflict?",
+    options: ["Shut down", "Get defensive", "Try to fix it", "Seek space"]
+  },
+  {
+    text: "In a group setting, you often feel like the…",
+    options: ["Leader", "Mediator", "Outsider", "Connector"]
+  },
+  {
+    text: "How do you recharge best?",
+    options: ["Alone time", "Deep conversation", "Physical activity", "Creative expression"]
+  },
+  {
+    text: "Which mythic figure resonates most with you?",
+    options: ["The Seeker", "The Healer", "The Warrior", "The Sage"]
+  },
+  {
+    text: "Which inner voice feels most familiar?",
+    options: ["Be perfect", "Be safe", "Be needed", "Be strong"]
+  }
 ]
 
 const answers = ref([])
