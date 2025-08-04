@@ -166,6 +166,7 @@ const emailReport = async () => {
 .fade-leave-to {
   opacity: 0;
 }
+
 .dot-flash span {
   animation-name: flash;
   animation-duration: 1.5s;
@@ -189,10 +190,18 @@ const emailReport = async () => {
   100% { opacity: 0.2; }
 }
 
-</style>
-"""
+@keyframes slowPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
 
-# Save final version to file
-final_path = Path("/mnt/data/FullReport.vue")
-final_path.write_text(full_report_vue.strip())
-final_path
+.animate-slowPulse {
+  animation: slowPulse 1.8s ease-in-out infinite;
+}
+</style>

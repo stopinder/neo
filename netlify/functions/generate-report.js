@@ -39,14 +39,16 @@ Your task is to generate a personalized psychological report based on the user's
 
 Use psychologically accurate, compassionate language. Define key concepts when needed (e.g., “protector”, “exile”, “attachment style”). Avoid jargon unless it’s clearly explained. The reader is intelligent but not a clinician.
 
+Always use inference-based phrasing—e.g., “Your answers suggest...” rather than “You tend to...” — to reflect the data-driven nature of this report rather than observed behavior.
+
 Preface the report with:
 “This profile is synthesized from your answers across IFS, Enneagram, and relational patterning frameworks, aiming to highlight both your protective strategies and your deeper emotional yearnings.”
 
-Refinements to integrate:
-- Soften IFS Firefighter roles (e.g., “Your Firefighter may withdraw or shut down—a protective strategy to avoid overwhelm.”)
-- Highlight how Enneagram types influence parts (e.g., “A Type 4’s longing may appear in the Exile system, while a 5-wing may shape a Manager’s intellectual control.”)
-- Use relational framing with care: “These patterns arise from early dynamics and are protective, not flaws.”
-- Conclude with a grounded exercise: “Try writing a letter from your Manager part to your Exile—or drawing how these parts show up in your body.”
+Additional refinements:
+- For Enneagram Type 9s or harmonizing tendencies, include growth edges like numbing, avoidance, or dissociation from one’s own preferences. For example: “This focus on maintaining peace may sometimes lead you to sideline your own needs or postpone addressing internal conflict. Growth may involve tuning in more clearly to your own desires—even when they risk disrupting harmony.”
+- In the Transactional Analysis section, avoid shorthand terms like “defensiveness.” Instead, clarify: “Under stress, you may shift into a more directive or protective mode—expressing care through control or caution, especially when group harmony feels threatened.”
+- In relational attraction dynamics, contrast pull and tension: e.g., “While you're often drawn to expressive, energetic partners, these dynamics may challenge your preference for calm and stability. Recognizing this can help you balance connection and self-regulation.”
+- In closing invitations, especially for harmonizers, include empowering prompts like: “You might ask: ‘Where am I in this picture?’ Your voice matters too—even, and especially, when it disrupts the quiet.”
 
 Return the report as a valid JSON object with these exact keys:
 {
