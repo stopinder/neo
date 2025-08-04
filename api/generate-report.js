@@ -4,18 +4,19 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Only POST allowed' });
+        return res.status(405).json({ error: 'Only POST requests are allowed.' });
     }
 
     const { answers } = req.body;
 
     if (!answers || !Array.isArray(answers)) {
-        return res.status(400).json({ error: 'Invalid or missing answers' });
+        return res.status(400).json({ error: 'Invalid or missing answers array.' });
     }
 
     const answersString = JSON.stringify(answers, null, 2);
+
     if (answersString.length > 10000) {
-        return res.status(413).json({ error: 'Answers too large.' });
+        return res.status(413).json({ error: 'Answers payload too large.' });
     }
 
     const prompt = `
@@ -41,7 +42,7 @@ Format the output as a valid JSON object with the following keys:
 
 User Responses:
 ${answersString}
-`;
+    `.trim();
 
     if (process.env.NODE_ENV !== 'production') {
         console.log('GPT prompt:\n', prompt);
@@ -49,13 +50,14 @@ ${answersString}
 
     try {
         let content;
-        for (let i = 0; i < 2; i++) {
+        for (let attempt = 0; attempt < 2; attempt++) {
             const response = await openai.chat.completions.create({
                 model: 'gpt-4',
                 messages: [{ role: 'user', content: prompt }],
                 temperature: 0.7,
                 max_tokens: 3200,
             });
+
             content = response.choices?.[0]?.message?.content?.trim();
             if (content) break;
         }
@@ -68,11 +70,11 @@ ${answersString}
             const parsed = JSON.parse(content);
             return res.status(200).json(parsed);
         } catch (parseError) {
-            console.error('Invalid JSON from OpenAI:', content);
+            console.error('Invalid JSON from OpenAI:\n', content);
             return res.status(500).json({ error: 'Invalid JSON returned by OpenAI.' });
         }
     } catch (error) {
-        console.error('OpenAI error:', error);
+        console.error('OpenAI API error:', error);
         return res.status(500).json({ error: 'Report generation failed.' });
     }
 }
