@@ -9,11 +9,15 @@ full_report_vue = """
         <p class="text-ink-night/80">A clinical synthesis of your IFS system, Enneagram type, attachment style, and relational dynamics.</p>
       </div>
 
-      <div v-if="loading" class="flex flex-col items-center justify-center text-center space-y-4 animate-slowPulse text-space-gray min-h-[40vh]">
-        <p class="text-lg font-poetic tracking-wide">
-          Mapping your inner constellation...
+      <div v-if="loading" class="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center">
+        <p class="text-lg font-poetic tracking-wide text-space-gray">
+          Mapping your inner constellation
+          <span class="dot-flash ml-1">
+      <span>.</span><span>.</span><span>.</span>
+    </span>
         </p>
       </div>
+
 
       <div v-else-if="report && !report.error" id="report-content"
            class="text-left bg-white/80 text-ink-night shadow-glow rounded-xl p-6 space-y-6">
@@ -162,6 +166,29 @@ const emailReport = async () => {
 .fade-leave-to {
   opacity: 0;
 }
+.dot-flash span {
+  animation-name: flash;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #4b5563; /* Tailwind slate-600 */
+}
+
+.dot-flash span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dot-flash span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes flash {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
 </style>
 """
 
