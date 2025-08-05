@@ -22,7 +22,7 @@ export default {
         'roseQuartz': '#e0aebb',
       },
       fontFamily: {
-        display: ['"Playfair Display"', 'serif'],
+
         body: ['Inter', 'sans-serif'],
         poetic: ['"EB Garamond"', 'serif'],
       },
