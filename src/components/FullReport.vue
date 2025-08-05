@@ -14,7 +14,8 @@
         <div
             v-for="(value, section) in report"
             :key="section"
-            v-if="section !== 'mythic_comparison' && section !== 'invitation'"
+            v-if="!['mythic_comparison', 'invitation', 'framework_sources'].includes(section)"
+
             class="bg-white/80 shadow-glow rounded-xl p-6 transition"
         >
           <button @click="toggleSection(section)" class="w-full text-left flex justify-between items-center">
