@@ -32,6 +32,16 @@ full_report_vue = """
             — Mary Oliver
           </p>
         </div>
+        <div class="mt-10 px-6 py-8 bg-moon-glow/70 rounded-2xl border border-ink-night/10 shadow-halo backdrop-blur-sm text-center space-y-4 transition hover:shadow-aura">
+          <h4 class="text-2xl font-poetic text-ink-night tracking-wide">✨ Want to Go Deeper?</h4>
+          <p class="text-ink-night/80 text-base leading-relaxed max-w-2xl mx-auto">
+            Unlock an extended reading based on your psychological constellation — featuring deeper IFS protectors, mythic reflections, and symbolic insights drawn from your core patterns.
+          </p>
+          <button class="bg-sun-gold hover:bg-ink-night text-white font-semibold px-8 py-3 rounded-full shadow-aura transition duration-300">
+            Unlock Extended Report — $2.99
+          </button>
+        </div>
+
 
         <div class="flex flex-col items-center space-y-4 pt-6">
           <input v-model="userEmail" type="email" placeholder="Enter your email"
