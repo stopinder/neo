@@ -37,22 +37,68 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const questions = [
-  { text: 'What draws you in the most?', options: ['Harmony', 'Challenge', 'Insight'] },
-  { text: 'Which energy describes you best?', options: ['Grounded', 'Fiery', 'Fluid'] },
-  { text: "What quality do you most seek in a partner?", options: ["Loyalty", "Excitement", "Emotional depth", "Stability"] },
-  { text: "How do you handle emotional vulnerability?", options: ["Avoid it", "Embrace it", "Overthink it", "Downplay it"] },
-  { text: "Which best describes your communication style?", options: ["Direct", "Diplomatic", "Reserved", "Expressive"] },
-  { text: "When hurt, you tend to...", options: ["Withdraw", "Confront", "Overcompensate", "Shut down"] },
-  { text: "What do you crave most in life?", options: ["Purpose", "Harmony", "Freedom", "Connection"] },
-  { text: "What kind of people are you often drawn to?", options: ["Strong and silent", "Outgoing and fun", "Nurturing and caring", "Ambitious and driven"] },
-  { text: "Your biggest internal conflict is between...", options: ["Self and others", "Logic and emotion", "Freedom and safety", "Control and surrender"] },
-  { text: "What kind of relationship dynamic drains you?", options: ["Too clingy", "Too distant", "Too chaotic", "Too controlling"] },
-  { text: "How do you respond to conflict?", options: ["Shut down", "Get defensive", "Try to fix it", "Seek space"] },
-  { text: "In a group, you often feel like the...", options: ["Leader", "Mediator", "Outsider", "Connector"] },
-  { text: "How do you recharge best?", options: ["Alone time", "Deep conversation", "Physical activity", "Creative expression"] },
-  { text: "Which mythic figure resonates most with you?", options: ["The Seeker", "The Healer", "The Warrior", "The Sage"] },
-  { text: "What inner voice do you hear most?", options: ["Be perfect", "Be safe", "Be needed", "Be strong"] }
-]
+  {
+    text: "What do you instinctively move toward in moments of uncertainty?",
+    options: ["Harmony", "Challenge", "Clarity", "Escape"]
+  },
+  {
+    text: "When energy rises in you, what does it most often feel like?",
+    options: ["Grounded momentum", "Electric fire", "Waves and moods", "Sharp focus"]
+  },
+  {
+    text: "In a partner, what trait both draws you in and unsettles you?",
+    options: ["Unwavering loyalty", "Adventurous unpredictability", "Depth of feeling", "Steady control"]
+  },
+  {
+    text: "When emotional vulnerability arises, what’s your first inner move?",
+    options: ["Guard up—stay safe", "Lean in—I want connection", "Analyze—I need to understand", "Retreat—I get quiet"]
+  },
+  {
+    text: "Your communication becomes most distorted when you feel...",
+    options: ["Ignored", "Cornered", "Misunderstood", "Unseen"]
+  },
+  {
+    text: "When hurt, your first instinct is to...",
+    options: ["Shut down", "Push back", "Prove yourself", "Disappear emotionally"]
+  },
+  {
+    text: "What’s the hunger just beneath your daily life?",
+    options: ["A meaningful role", "Peace with others", "Freedom from pressure", "True intimacy"]
+  },
+  {
+    text: "Which kind of people stir both admiration and tension in you?",
+    options: ["Silent strength", "Wild charisma", "Warm nurturance", "Relentless ambition"]
+  },
+  {
+    text: "Your inner tug-of-war is most often between...",
+    options: ["Duty and desire", "Control and surrender", "Closeness and space", "Truth and approval"]
+  },
+  {
+    text: "In relationships, you’re most drained by those who...",
+    options: ["Need too much", "Push too far", "Shift too fast", "Take control"]
+  },
+  {
+    text: "When conflict erupts, what part of you leads?",
+    options: ["The fixer", "The protector", "The vanisher", "The truth-teller"]
+  },
+  {
+    text: "In a group, you tend to carry the energy of the...",
+    options: ["Visionary leader", "Peace-keeper", "Wise outsider", "Connector of hearts"]
+  },
+  {
+    text: "You restore yourself best through...",
+    options: ["Stillness and solitude", "One-on-one soul talk", "Movement and action", "Creative immersion"]
+  },
+  {
+    text: "Which inner archetype rises in you under pressure?",
+    options: ["The Seeker—driven to find what's missing", "The Healer—drawn to soothe others’ wounds", "The Warrior—called to act, no matter the cost", "The Sage—detached and watchful"]
+  },
+  {
+    text: "Which voice whispers loudest in hard moments?",
+    options: ["Be perfect", "Be safe", "Be needed", "Be strong"]
+  }
+];
+
 
 const answers = ref([])
 const currentIndex = ref(0)
