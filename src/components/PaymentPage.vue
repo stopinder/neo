@@ -9,10 +9,11 @@
       </p>
       <button
           @click="goToCheckout"
-          class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-8 rounded-full shadow-aura transition"
+          class="bg-sun-gold hover:bg-ink-night text-white font-semibold py-3 px-8 rounded-full shadow-aura transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sun-gold"
       >
         Proceed to Payment
       </button>
+
     </div>
   </div>
 </template>
