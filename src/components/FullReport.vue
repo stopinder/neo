@@ -1,6 +1,3 @@
-# Full updated FullReport.vue file with soft pulsing loader and updated clinical structure
-
-full_report_vue = """
 <template>
   <div class="min-h-screen bg-gradient-to-br from-moon-glow via-ether to-ink-night text-ink-night font-serif p-6 flex items-center justify-center">
     <div class="max-w-3xl w-full text-center space-y-8">
@@ -9,20 +6,24 @@ full_report_vue = """
         <p class="text-ink-night/80">A clinical synthesis of your IFS system, Enneagram type, attachment style, and relational dynamics.</p>
       </div>
 
+      <!-- Soft pulsing loader -->
       <div v-if="loading" class="flex flex-col items-center justify-center text-center space-y-4 animate-slowPulse text-space-gray min-h-[40vh]">
         <p class="text-lg font-poetic tracking-wide">
           Mapping your inner constellation...
         </p>
       </div>
 
-      <div v-else-if="filteredReport && Object.keys(filteredReport).length && !filteredReport.error" id="report-content"
-           class="text-left bg-white/80 text-ink-night shadow-glow rounded-xl p-6 space-y-6">
+      <div
+          v-else-if="filteredReport && Object.keys(filteredReport).length && !filteredReport.error"
+          id="report-content"
+          class="text-left bg-white/80 text-ink-night shadow-glow rounded-xl p-6 space-y-6"
+      >
         <TransitionGroup name="fade" tag="div">
-          <div v-for="(value, section) in filteredReport" :key="section">
+          <div v-for="item in orderedSections" :key="item.section">
             <h3 class="text-xl font-display font-semibold text-ink-night capitalize mt-4">
-              {{ formatTitle(section) }}
+              {{ formatTitle(item.section) }}
             </h3>
-            <p class="mt-2 whitespace-pre-wrap leading-relaxed text-ink-night/90">{{ value }}</p>
+            <p class="mt-2 whitespace-pre-wrap leading-relaxed text-ink-night/90">{{ item.value }}</p>
           </div>
         </TransitionGroup>
 
@@ -32,6 +33,7 @@ full_report_vue = """
             — Mary Oliver
           </p>
         </div>
+
         <div class="mt-10 px-6 py-8 bg-moon-glow/70 rounded-2xl border border-ink-night/10 shadow-halo backdrop-blur-sm text-center space-y-4 transition hover:shadow-aura">
           <h4 class="text-2xl font-poetic text-ink-night tracking-wide">✨ Want to Go Deeper?</h4>
           <p class="text-ink-night/80 text-base leading-relaxed max-w-2xl mx-auto">
@@ -43,14 +45,23 @@ full_report_vue = """
         </div>
 
         <div class="flex flex-col items-center space-y-4 pt-6">
-          <input v-model="userEmail" type="email" placeholder="Enter your email"
-                 class="bg-white/10 backdrop-blur border border-ink-night/20 text-ink-night placeholder-ink-night/60 px-4 py-2 rounded-full w-full max-w-sm focus:outline-none focus:ring focus:ring-sun-gold" />
-          <button :disabled="!isEmailValid" @click="emailReport"
-                  class="bg-sun-gold hover:bg-ink-night text-white font-semibold px-6 py-3 rounded-full shadow-aura transition disabled:opacity-50">
+          <input
+              v-model="userEmail"
+              type="email"
+              placeholder="Enter your email"
+              class="bg-white/10 backdrop-blur border border-ink-night/20 text-ink-night placeholder-ink-night/60 px-4 py-2 rounded-full w-full max-w-sm focus:outline-none focus:ring focus:ring-sun-gold"
+          />
+          <button
+              :disabled="!isEmailValid"
+              @click="emailReport"
+              class="bg-sun-gold hover:bg-ink-night text-white font-semibold px-6 py-3 rounded-full shadow-aura transition disabled:opacity-50"
+          >
             Send to My Inbox
           </button>
-          <button @click="downloadPDF"
-                  class="bg-ink-night hover:bg-sun-gold text-white font-semibold px-6 py-3 rounded-full shadow-aura transition">
+          <button
+              @click="downloadPDF"
+              class="bg-ink-night hover:bg-sun-gold text-white font-semibold px-6 py-3 rounded-full shadow-aura transition"
+          >
             Download Sacred Map (PDF)
           </button>
         </div>
@@ -72,7 +83,9 @@ const report = ref({})
 const loading = ref(true)
 const userEmail = ref('')
 
+// Titles + fallback
 const sectionTitles = {
+  report: "📄 Full Report",
   core_profile: "✨ Core Profile",
   ifs_dynamics: "🛡️ IFS Dynamics",
   enneagram_pattern: "🌿 Enneagram Pattern",
@@ -90,17 +103,51 @@ const isEmailValid = computed(() =>
     /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/.test(userEmail.value.trim())
 )
 
-const filteredReport = computed(() => {
-  if (!report.value) return {}
-  const clone = { ...report.value }
-  delete clone.framework_sources
-  return clone
+// --- Normalization / cleaning ---
+function cleanReport(payload) {
+  // If the API sent an object, drop metadata and return
+  if (payload && typeof payload === 'object') {
+    const clone = { ...payload }
+    delete clone.framework_sources
+    return clone
+  }
+
+  // If the API sent a string, strip trailing metadata and wrap it
+  if (typeof payload === 'string') {
+    let out = payload
+
+    // Remove fenced JSON blocks at end
+    out = out.replace(/\n```json[\s\S]*?```\s*$/i, '')
+    // Remove naked framework_sources object at end
+    out = out.replace(/\n?framework_sources\s*\{[\s\S]*?\}\s*$/i, '')
+    // Remove any stray backticks
+    out = out.replace(/```+/g, '')
+
+    const trimmed = out.trim()
+    return trimmed ? { report: trimmed } : { error: 'Empty report received.' }
+  }
+
+  return { error: 'Unexpected report format.' }
+}
+
+const filteredReport = computed(() => report.value)
+
+// Order sections by sectionTitles map
+const orderedSections = computed(() => {
+  const obj = filteredReport.value || {}
+  const keys = Object.keys(obj).filter(k => k !== 'error')
+  const order = Object.keys(sectionTitles)
+  keys.sort((a, b) => {
+    const ia = order.indexOf(a); const ib = order.indexOf(b)
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib)
+  })
+  return keys.map(k => ({ section: k, value: obj[k] }))
 })
 
 const plainTextReport = computed(() =>
-    Object.entries(filteredReport.value).map(([k, v]) =>
-        `${formatTitle(k)}:\n${v}\n\n`
-    ).join('')
+    orderedSections.value
+        .map(({ section, value }) => `${formatTitle(section)}:\n${value}\n`)
+        .join('\n')
 )
 
 onMounted(async () => {
@@ -110,17 +157,15 @@ onMounted(async () => {
   try {
     storedAnswers = JSON.parse(storedAnswersRaw)
     if (!Array.isArray(storedAnswers) || storedAnswers.length === 0) throw new Error()
-  } catch (e) {
+  } catch {
     report.value = { error: 'No quiz data found. Please retake the quiz.' }
     loading.value = false
     return
   }
 
   try {
-    const response = await axios.post('/api/generate-report', {
-      answers: storedAnswers
-    })
-    report.value = response.data
+    const response = await axios.post('/api/generate-report', { answers: storedAnswers })
+    report.value = cleanReport(response.data)
   } catch (error) {
     console.error(error)
     report.value = { error: 'Something went wrong while illuminating your inner terrain.' }
@@ -131,6 +176,8 @@ onMounted(async () => {
 
 const downloadPDF = () => {
   const element = document.getElementById('report-content')
+  if (!element) return
+
   const footer = document.createElement('div')
   footer.innerHTML = '<p style="margin-top: 2em; font-style: italic; text-align: center; font-size: 12px;">🔮 Generated with GPT-4 insight and inner constellation mapping.</p>'
   element.appendChild(footer)
@@ -161,6 +208,7 @@ const emailReport = async () => {
 </script>
 
 <style>
+/* Fade */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.6s ease;
@@ -168,5 +216,15 @@ const emailReport = async () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Soft pulsing loader */
+@keyframes slowPulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+.animate-slowPulse {
+  animation: slowPulse 2.4s ease-in-out infinite;
 }
 </style>
