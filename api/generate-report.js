@@ -1,34 +1,35 @@
-import OpenAI from 'openai';
+// /api/generate-report.js
+import OpenAI from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// Allow override via env. Default to a JSON-capable model.
+const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Only POST requests are allowed.' });
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Only POST requests are allowed." });
     }
 
-    const { answers } = req.body;
-
+    const { answers } = req.body || {};
     if (!answers || !Array.isArray(answers)) {
-        return res.status(400).json({ error: 'Invalid or missing answers array.' });
+        return res.status(400).json({ error: "Invalid or missing answers array." });
     }
 
     const answersString = JSON.stringify(answers, null, 2);
-
     if (answersString.length > 10000) {
-        return res.status(413).json({ error: 'Answers payload too large.' });
+        return res.status(413).json({ error: "Answers payload too large." });
     }
 
-    const prompt = `
-You are a psychologically informed synthesis engine trained in clinical frameworks including Internal Family Systems (IFS), the Enneagram (including subtype and wing variants), Attachment Theory, and Transactional Analysis (TA). Your task is to generate a one-off, structured psychological insight report based on quiz answers. Assume the reader is intelligent and introspective, though not a clinician.
+    // ----- Prompt pieces -----
+    const systemMsg = `
+You are a psychologically informed synthesis engine trained in Internal Family Systems (IFS), the Enneagram (including subtype and wing), Attachment Theory, and Transactional Analysis (TA).
 
-Tone: Calm, reflective, and grounded. Speak with the clarity of a clinical guide and the depth of a thoughtful mentor. Avoid absolutes. Use language like “may,” “tend to,” or “is often drawn to...” to reflect that these are probable, not fixed, patterns. Prefer specificity over neutrality when patterns are strong. Avoid open-ended questions; this is a one-time report, not a conversation.
+Task: Generate a one-off, structured psychological insight report based on quiz answers.
 
-Each section should be 250–500 words and serve both as insight and education. Define key terms when used (e.g., “protector,” “subtype,” “attachment”). Your goal is not to flatter, but to clarify and gently deepen the user’s self-understanding.
+Tone: Calm, reflective, grounded. Avoid absolutes; prefer “may,” “tend to,” “is often drawn to…”. Define key terms when used (“protector,” “subtype,” “attachment”). Each section 250–500 words. Reserve mythopoetic metaphors for final sections only.
 
-Reserve mythopoetic or archetypal metaphors for the final sections only, and use them with restraint. Offer metaphors that are precise yet open-ended. Avoid clichés. This is an imaginal mirror, not a final truth.
-
-Return your output as a **valid, clean JSON object only** using **these exact keys** (no emoji or extra headings):
+Output Policy: Return ONLY a valid JSON object with EXACTLY these keys and no extra text, no code fences:
 
 {
   "core_profile": "...",
@@ -41,51 +42,129 @@ Return your output as a **valid, clean JSON object only** using **these exact ke
   "mythic_comparison": "...",
   "invitation": "...",
   "framework_sources": {
-    "Internal Family Systems": ["core_profile", "ifs_dynamics"],
-    "Enneagram": ["core_profile", "enneagram_pattern"],
-    "Attachment Theory": ["core_profile", "attachment_style"],
+    "Internal Family Systems": ["core_profile","ifs_dynamics"],
+    "Enneagram": ["core_profile","enneagram_pattern"],
+    "Attachment Theory": ["core_profile","attachment_style"],
     "Transactional Analysis": ["transactional_analysis"],
     "Attraction Dynamics": ["attraction_dynamics"],
     "Relational Dynamics": ["relational_dynamics"]
   }
 }
+`.trim();
 
+    const userMsg = `
 User Responses:
 ${answersString}
 `.trim();
 
-
-    if (process.env.NODE_ENV !== 'production') {
-        console.log('GPT prompt:\n', prompt);
-    }
-
+    // ----- Call helper with retries -----
     try {
-        let content;
-        for (let attempt = 0; attempt < 2; attempt++) {
-            const response = await openai.chat.completions.create({
-                model: 'gpt-4',
-                messages: [{ role: 'user', content: prompt }],
-                temperature: 0.7,
-                max_tokens: 3200,
-            });
+        const content = await callOpenAIWithRetries({
+            model: MODEL,
+            system: systemMsg,
+            user: userMsg,
+            maxAttempts: 3,
+        });
 
-            content = response.choices?.[0]?.message?.content?.trim();
-            if (content) break;
-        }
-
-        if (!content) {
-            return res.status(502).json({ error: 'No response from OpenAI after retry.' });
-        }
-
+        // Primary parse
         try {
             const parsed = JSON.parse(content);
+            // Optional: sanity check keys exist
+            const must = [
+                "core_profile",
+                "ifs_dynamics",
+                "enneagram_pattern",
+                "attachment_style",
+                "transactional_analysis",
+                "attraction_dynamics",
+                "relational_dynamics",
+                "mythic_comparison",
+                "invitation",
+                "framework_sources",
+            ];
+            for (const k of must) {
+                if (!(k in parsed)) {
+                    throw new Error(`Missing key: ${k}`);
+                }
+            }
+            res.setHeader("Cache-Control", "no-store");
             return res.status(200).json(parsed);
-        } catch (parseError) {
-            console.error('Invalid JSON from OpenAI:\n', content);
-            return res.status(500).json({ error: 'Invalid JSON returned by OpenAI.' });
+        } catch (e) {
+            // Regex salvage if model ever slips anything extra in
+            const salvaged = salvageJson(content);
+            if (salvaged) {
+                res.setHeader("Cache-Control", "no-store");
+                return res.status(200).json(salvaged);
+            }
+            console.error("Invalid JSON from OpenAI:\n", content);
+            return res.status(500).json({ error: "Invalid JSON returned by OpenAI." });
         }
     } catch (error) {
-        console.error('OpenAI API error:', error);
-        return res.status(500).json({ error: 'Report generation failed.' });
+        console.error("OpenAI API error:", error);
+        return res.status(500).json({ error: "Report generation failed." });
+    }
+}
+
+// --- Helpers ---
+
+async function callOpenAIWithRetries({ model, system, user, maxAttempts = 3 }) {
+    let lastErr;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            const resp = await OpenAIChatJSON({ model, system, user });
+            const content = resp?.choices?.[0]?.message?.content?.trim();
+            if (content) return content;
+            lastErr = new Error("Empty completion");
+        } catch (e) {
+            lastErr = e;
+        }
+        // simple backoff
+        await sleep(300 * attempt);
+    }
+    throw lastErr || new Error("OpenAI failed without error");
+}
+
+async function OpenAIChatJSON({ model, system, user }) {
+    return await openai.chat.completions.create({
+        model,
+        // Forces pure JSON output on modern models
+        response_format: { type: "json_object" },
+        temperature: 0.2,
+        max_tokens: 3200,
+        messages: [
+            { role: "system", content: system },
+            { role: "user", content: user },
+        ],
+    });
+}
+
+function sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+}
+
+// Try to extract the largest JSON object in the text.
+function salvageJson(text) {
+    if (!text) return null;
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+    if (start === -1 || end === -1 || end <= start) return null;
+
+    const candidate = text.slice(start, end + 1);
+    try {
+        return JSON.parse(candidate);
+    } catch {
+        // Second pass: remove a trailing "framework_sources {...}" if it's outside JSON
+        const cleaned = text
+            .replace(/\n```json[\s\S]*?```\s*$/i, "")
+            .replace(/\n?framework_sources\s*\{[\s\S]*?\}\s*$/i, "")
+            .trim();
+        const s2 = cleaned.indexOf("{");
+        const e2 = cleaned.lastIndexOf("}");
+        if (s2 === -1 || e2 === -1 || e2 <= s2) return null;
+        try {
+            return JSON.parse(cleaned.slice(s2, e2 + 1));
+        } catch {
+            return null;
+        }
     }
 }
