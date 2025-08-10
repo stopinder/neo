@@ -15,10 +15,10 @@ full_report_vue = """
         </p>
       </div>
 
-      <div v-else-if="report && !report.error" id="report-content"
+      <div v-else-if="filteredReport && Object.keys(filteredReport).length && !filteredReport.error" id="report-content"
            class="text-left bg-white/80 text-ink-night shadow-glow rounded-xl p-6 space-y-6">
         <TransitionGroup name="fade" tag="div">
-          <div v-for="(value, section) in report" :key="section">
+          <div v-for="(value, section) in filteredReport" :key="section">
             <h3 class="text-xl font-display font-semibold text-ink-night capitalize mt-4">
               {{ formatTitle(section) }}
             </h3>
@@ -42,7 +42,6 @@ full_report_vue = """
           </button>
         </div>
 
-
         <div class="flex flex-col items-center space-y-4 pt-6">
           <input v-model="userEmail" type="email" placeholder="Enter your email"
                  class="bg-white/10 backdrop-blur border border-ink-night/20 text-ink-night placeholder-ink-night/60 px-4 py-2 rounded-full w-full max-w-sm focus:outline-none focus:ring focus:ring-sun-gold" />
@@ -58,7 +57,7 @@ full_report_vue = """
       </div>
 
       <div v-else class="text-rose-300 font-medium">
-        {{ report.error || 'Something went wrong while illuminating your inner terrain.' }}
+        {{ filteredReport.error || 'Something went wrong while illuminating your inner terrain.' }}
       </div>
     </div>
   </div>
@@ -89,11 +88,17 @@ const formatTitle = (key) => sectionTitles[key] || key
 
 const isEmailValid = computed(() =>
     /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/.test(userEmail.value.trim())
-
 )
 
+const filteredReport = computed(() => {
+  if (!report.value) return {}
+  const clone = { ...report.value }
+  delete clone.framework_sources
+  return clone
+})
+
 const plainTextReport = computed(() =>
-    Object.entries(report.value).map(([k, v]) =>
+    Object.entries(filteredReport.value).map(([k, v]) =>
         `${formatTitle(k)}:\n${v}\n\n`
     ).join('')
 )
@@ -165,9 +170,3 @@ const emailReport = async () => {
   opacity: 0;
 }
 </style>
-"""
-
-# Save final version to file
-final_path = Path("/mnt/data/FullReport.vue")
-final_path.write_text(full_report_vue.strip())
-final_path
