@@ -34,7 +34,7 @@
           </p>
         </div>
 
-        <!-- Actions: Email, Copy, Download -->
+        <!-- Actions: Email + Copy -->
         <div class="flex flex-col items-center space-y-4 pt-6">
           <input
               v-model="userEmail"
@@ -56,13 +56,6 @@
           >
             Copy Report to Clipboard
           </button>
-
-          <button
-              @click="downloadPDF"
-              class="bg-ink-night hover:bg-sun-gold text-white font-semibold px-6 py-3 rounded-full shadow-aura transition"
-          >
-            Download Sacred Map (PDF)
-          </button>
         </div>
       </div>
 
@@ -72,6 +65,7 @@
     </div>
   </div>
 </template>
+
 
 
 <script setup>
