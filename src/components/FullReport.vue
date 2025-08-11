@@ -34,27 +34,20 @@
           </p>
         </div>
 
-        <!-- Actions: Email + Copy -->
+        <!-- Actions: Copy and Download only -->
         <div class="flex flex-col items-center space-y-4 pt-6">
-          <input
-              v-model="userEmail"
-              type="email"
-              placeholder="Enter your email"
-              class="bg-white/10 backdrop-blur border border-ink-night/20 text-ink-night placeholder-ink-night/60 px-4 py-2 rounded-full w-full max-w-sm focus:outline-none focus:ring focus:ring-sun-gold"
-          />
-          <button
-              :disabled="!isEmailValid"
-              @click="emailReport"
-              class="bg-sun-gold hover:bg-ink-night text-white font-semibold px-6 py-3 rounded-full shadow-aura transition disabled:opacity-50"
-          >
-            Send to My Inbox
-          </button>
-
           <button
               @click="copyReportToClipboard"
               class="bg-ink-night hover:bg-sun-gold text-white font-semibold px-6 py-3 rounded-full shadow-aura transition"
           >
             Copy Report to Clipboard
+          </button>
+
+          <button
+              @click="downloadPDF"
+              class="bg-ink-night hover:bg-sun-gold text-white font-semibold px-6 py-3 rounded-full shadow-aura transition"
+          >
+            Download Report (PDF)
           </button>
         </div>
       </div>
@@ -66,25 +59,13 @@
   </div>
 </template>
 
-
-
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import html2pdf from 'html2pdf.js'
-const copyReportToClipboard = async () => {
-  try {
-    await navigator.clipboard.writeText(plainTextReport.value)
-    alert('Report copied to clipboard!')
-  } catch (err) {
-    alert('Failed to copy. Try again.')
-    console.error(err)
-  }
-}
 
 const report = ref({})
 const loading = ref(true)
-const userEmail = ref('')
 
 // Titles + fallback
 const sectionTitles = {
@@ -102,40 +83,26 @@ const sectionTitles = {
 
 const formatTitle = (key) => sectionTitles[key] || key
 
-const isEmailValid = computed(() =>
-    /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/.test(userEmail.value.trim())
-)
-
 // --- Normalization / cleaning ---
 function cleanReport(payload) {
-  // If the API sent an object, drop metadata and return
   if (payload && typeof payload === 'object') {
     const clone = { ...payload }
     delete clone.framework_sources
     return clone
   }
-
-  // If the API sent a string, strip trailing metadata and wrap it
   if (typeof payload === 'string') {
     let out = payload
-
-    // Remove fenced JSON blocks at end
     out = out.replace(/\n```json[\s\S]*?```\s*$/i, '')
-    // Remove naked framework_sources object at end
     out = out.replace(/\n?framework_sources\s*\{[\s\S]*?\}\s*$/i, '')
-    // Remove any stray backticks
     out = out.replace(/```+/g, '')
-
     const trimmed = out.trim()
     return trimmed ? { report: trimmed } : { error: 'Empty report received.' }
   }
-
   return { error: 'Unexpected report format.' }
 }
 
 const filteredReport = computed(() => report.value)
 
-// Order sections by sectionTitles map
 const orderedSections = computed(() => {
   const obj = filteredReport.value || {}
   const keys = Object.keys(obj).filter(k => k !== 'error')
@@ -187,7 +154,7 @@ const downloadPDF = () => {
 
   html2pdf().set({
     margin: 0.5,
-    filename: 'inner-constellation.pdf',
+    filename: 'report.pdf',  // Updated filename
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2 },
     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
@@ -196,15 +163,12 @@ const downloadPDF = () => {
   element.removeChild(footer)
 }
 
-const emailReport = async () => {
+const copyReportToClipboard = async () => {
   try {
-    await axios.post('/api/send-report', {
-      email: userEmail.value.trim(),
-      content: plainTextReport.value
-    })
-    alert('Report sent to your inbox!')
+    await navigator.clipboard.writeText(plainTextReport.value)
+    alert('Report copied to clipboard!')
   } catch (err) {
-    alert('Sending failed. Try again soon.')
+    alert('Failed to copy. Try again.')
     console.error(err)
   }
 }
