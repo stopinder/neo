@@ -43,21 +43,37 @@
           </div>
         </TransitionGroup>
 
-        <!-- Mission paragraph -->
+        <!-- Eye-catching In Brief summary -->
         <div
-            class="mt-8 text-center text-sm text-ink-night/70 italic motion-safe:animate-fadeIn"
+            class="mt-8 p-6 bg-yellow-50 rounded-lg border-l-8 border-sun-gold shadow-lg"
+            role="region"
+            aria-label="Summary of your inner constellation"
         >
-          <p>
-            Curious about the purpose behind this quiz?
-            Visit
-            <a
-                href="https://yourwebsite.com/mission"
-                target="_blank"
-                class="underline hover:text-sun-gold"
-            >my website</a
-            >
-            to learn about my mission to support therapists and seekers alike.
+          <h4 class="text-ink-night font-semibold mb-2 italic text-lg">In Brief</h4>
+          <p class="italic text-ink-night/90 leading-relaxed">
+            {{ summary }}
           </p>
+        </div>
+
+        <!-- Quote block -->
+        <div
+            class="pt-8 border-t border-ink-night/20 mt-6 motion-safe:animate-fadeIn"
+        >
+          <p class="italic text-ink-night/70 text-sm mt-4">
+            “Your task is not to seek for love, but merely to seek and find all the
+            barriers within yourself that you have built against it.” — Rumi
+          </p>
+        </div>
+
+        <!-- Mission call-to-action -->
+        <div class="mt-6 text-center">
+          <a
+              href="https://yourwebsite.com/mission"
+              target="_blank"
+              rel="noopener"
+              class="inline-block bg-sun-gold text-ink-night font-semibold px-6 py-3 rounded shadow hover:bg-yellow-400 transition"
+          >Learn More About Our Mission</a
+          >
         </div>
 
         <!-- Actions: Copy and Download only -->
@@ -151,6 +167,11 @@ const orderedSections = computed(() => {
   });
   return keys.map((k) => ({ section: k, value: obj[k] }));
 });
+
+// Your "In Brief" summary text here
+const summary = ref(
+    "You embody a deep yearning for authentic connection balanced by a natural instinct to protect your emotional boundaries. This dynamic tension shapes your inner world and your relationships, inviting a journey toward greater self-awareness and balance."
+);
 
 const plainTextReport = computed(() =>
     orderedSections.value
