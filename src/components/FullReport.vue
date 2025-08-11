@@ -1,13 +1,25 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-moon-glow via-ether to-ink-night text-ink-night font-serif p-6 flex items-center justify-center">
+  <div
+      class="min-h-screen bg-gradient-to-br from-moon-glow via-ether to-ink-night text-ink-night font-serif p-6 flex items-center justify-center"
+  >
     <div class="max-w-3xl w-full text-center space-y-8">
       <div>
-        <h2 class="text-4xl font-display text-ink-night drop-shadow mb-2">Your Inner Constellation</h2>
-        <p class="text-ink-night/80">A clinical synthesis of your IFS system, Enneagram type, attachment style, and relational dynamics.</p>
+        <h2
+            class="text-4xl font-display text-ink-night drop-shadow mb-2"
+        >
+          Your Inner Constellation
+        </h2>
+        <p class="text-ink-night/80">
+          A clinical synthesis of your IFS system, Enneagram type, attachment style,
+          and relational dynamics.
+        </p>
       </div>
 
-      <!-- Soft pulsing loader -->
-      <div v-if="loading" class="flex flex-col items-center justify-center text-center space-y-4 animate-slowPulse text-space-gray min-h-[40vh]">
+      <!-- Soft pulsing loader with brighter pulse color -->
+      <div
+          v-if="loading"
+          class="flex flex-col items-center justify-center text-center space-y-4 animate-slowPulse text-sun-gold min-h-[40vh]"
+      >
         <p class="text-lg font-poetic tracking-wide">
           Mapping your inner constellation...
         </p>
@@ -20,17 +32,31 @@
       >
         <TransitionGroup name="fade" tag="div">
           <div v-for="item in orderedSections" :key="item.section">
-            <h3 class="text-xl font-display font-semibold text-ink-night capitalize mt-4">
+            <h3
+                class="text-xl font-display font-semibold text-ink-night capitalize mt-4"
+            >
               {{ formatTitle(item.section) }}
             </h3>
-            <p class="mt-2 whitespace-pre-wrap leading-relaxed text-ink-night/90">{{ item.value }}</p>
+            <p class="mt-2 whitespace-pre-wrap leading-relaxed text-ink-night/90">
+              {{ item.value }}
+            </p>
           </div>
         </TransitionGroup>
 
-        <div class="pt-8 border-t border-ink-night/20 mt-6 motion-safe:animate-fadeIn">
-          <p class="italic text-ink-night/70 text-sm mt-4">
-            “You do not have to be good. You only have to let the soft animal of your body love what it loves.”<br />
-            — Mary Oliver
+        <!-- Mission paragraph -->
+        <div
+            class="mt-8 text-center text-sm text-ink-night/70 italic motion-safe:animate-fadeIn"
+        >
+          <p>
+            Curious about the purpose behind this quiz?
+            Visit
+            <a
+                href="https://yourwebsite.com/mission"
+                target="_blank"
+                class="underline hover:text-sun-gold"
+            >my website</a
+            >
+            to learn about my mission to support therapists and seekers alike.
           </p>
         </div>
 
@@ -52,22 +78,34 @@
         </div>
       </div>
 
-      <div v-else class="text-rose-300 font-medium">
-        {{ filteredReport.error || 'Something went wrong while illuminating your inner terrain.' }}
+      <!-- Error state with Try Again button -->
+      <div
+          v-else
+          class="text-rose-300 font-medium flex flex-col items-center space-y-4"
+      >
+        <p>
+          {{ filteredReport.error ||
+        "Something went wrong while illuminating your inner terrain." }}
+        </p>
+        <button
+            @click="retryFetchReport"
+            class="bg-rose-300 hover:bg-rose-400 text-white font-semibold px-6 py-3 rounded-full shadow-aura transition"
+        >
+          Try Again
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
-import html2pdf from 'html2pdf.js'
+import { ref, onMounted, computed } from "vue";
+import axios from "axios";
+import html2pdf from "html2pdf.js";
 
-const report = ref({})
-const loading = ref(true)
+const report = ref({});
+const loading = ref(true);
 
-// Titles + fallback
 const sectionTitles = {
   report: "📄 Full Report",
   core_profile: "✨ Core Profile",
@@ -78,100 +116,113 @@ const sectionTitles = {
   relational_dynamics: "🔄 Relational Patterning",
   attraction_dynamics: "💞 Relational Magnetics & Attraction Patterns",
   mythic_comparison: "🌓 Mythic Reflection",
-  invitation: "🪞 A Gentle Invitation"
-}
+  invitation: "🪞 A Gentle Invitation",
+};
 
-const formatTitle = (key) => sectionTitles[key] || key
+const formatTitle = (key) => sectionTitles[key] || key;
 
-// --- Normalization / cleaning ---
 function cleanReport(payload) {
-  if (payload && typeof payload === 'object') {
-    const clone = { ...payload }
-    delete clone.framework_sources
-    return clone
+  if (payload && typeof payload === "object") {
+    const clone = { ...payload };
+    delete clone.framework_sources;
+    return clone;
   }
-  if (typeof payload === 'string') {
-    let out = payload
-    out = out.replace(/\n```json[\s\S]*?```\s*$/i, '')
-    out = out.replace(/\n?framework_sources\s*\{[\s\S]*?\}\s*$/i, '')
-    out = out.replace(/```+/g, '')
-    const trimmed = out.trim()
-    return trimmed ? { report: trimmed } : { error: 'Empty report received.' }
+  if (typeof payload === "string") {
+    let out = payload;
+    out = out.replace(/\n```json[\s\S]*?```\s*$/i, "");
+    out = out.replace(/\n?framework_sources\s*\{[\s\S]*?\}\s*$/i, "");
+    out = out.replace(/```+/g, "");
+    const trimmed = out.trim();
+    return trimmed ? { report: trimmed } : { error: "Empty report received." };
   }
-  return { error: 'Unexpected report format.' }
+  return { error: "Unexpected report format." };
 }
 
-const filteredReport = computed(() => report.value)
+const filteredReport = computed(() => report.value);
 
 const orderedSections = computed(() => {
-  const obj = filteredReport.value || {}
-  const keys = Object.keys(obj).filter(k => k !== 'error')
-  const order = Object.keys(sectionTitles)
+  const obj = filteredReport.value || {};
+  const keys = Object.keys(obj).filter((k) => k !== "error");
+  const order = Object.keys(sectionTitles);
   keys.sort((a, b) => {
-    const ia = order.indexOf(a); const ib = order.indexOf(b)
-    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib)
-  })
-  return keys.map(k => ({ section: k, value: obj[k] }))
-})
+    const ia = order.indexOf(a);
+    const ib = order.indexOf(b);
+    return ia === -1 ? 999 : ia - (ib === -1 ? 999 : ib);
+  });
+  return keys.map((k) => ({ section: k, value: obj[k] }));
+});
 
 const plainTextReport = computed(() =>
     orderedSections.value
         .map(({ section, value }) => `${formatTitle(section)}:\n${value}\n`)
-        .join('\n')
-)
+        .join("\n")
+);
 
-onMounted(async () => {
-  const storedAnswersRaw = localStorage.getItem('quizAnswers')
-  let storedAnswers
+async function fetchReport() {
+  const storedAnswersRaw = localStorage.getItem("quizAnswers");
+  let storedAnswers;
 
   try {
-    storedAnswers = JSON.parse(storedAnswersRaw)
-    if (!Array.isArray(storedAnswers) || storedAnswers.length === 0) throw new Error()
+    storedAnswers = JSON.parse(storedAnswersRaw);
+    if (!Array.isArray(storedAnswers) || storedAnswers.length === 0) throw new Error();
   } catch {
-    report.value = { error: 'No quiz data found. Please retake the quiz.' }
-    loading.value = false
-    return
+    report.value = { error: "No quiz data found. Please retake the quiz." };
+    loading.value = false;
+    return;
   }
 
   try {
-    const response = await axios.post('/api/generate-report', { answers: storedAnswers })
-    report.value = cleanReport(response.data)
+    const response = await axios.post("/api/generate-report", { answers: storedAnswers });
+    report.value = cleanReport(response.data);
   } catch (error) {
-    console.error(error)
-    report.value = { error: 'Something went wrong while illuminating your inner terrain.' }
+    console.error(error);
+    report.value = { error: "Something went wrong while illuminating your inner terrain." };
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-})
-
-const downloadPDF = () => {
-  const element = document.getElementById('report-content')
-  if (!element) return
-
-  const footer = document.createElement('div')
-  footer.innerHTML = '<p style="margin-top: 2em; font-style: italic; text-align: center; font-size: 12px;">🔮 Generated with GPT-4 insight and inner constellation mapping.</p>'
-  element.appendChild(footer)
-
-  html2pdf().set({
-    margin: 0.5,
-    filename: 'report.pdf',  // Updated filename
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-  }).from(element).save()
-
-  element.removeChild(footer)
 }
 
-const copyReportToClipboard = async () => {
+function downloadPDF() {
+  const element = document.getElementById("report-content");
+  if (!element) return;
+
+  const footer = document.createElement("div");
+  footer.innerHTML =
+      '<p style="margin-top: 2em; font-style: italic; text-align: center; font-size: 12px;">🔮 Generated with GPT-4 insight and inner constellation mapping.</p>';
+  element.appendChild(footer);
+
+  html2pdf()
+      .set({
+        margin: 0.5,
+        filename: "report.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      })
+      .from(element)
+      .save();
+
+  element.removeChild(footer);
+}
+
+async function copyReportToClipboard() {
   try {
-    await navigator.clipboard.writeText(plainTextReport.value)
-    alert('Report copied to clipboard!')
+    await navigator.clipboard.writeText(plainTextReport.value);
+    alert("Report copied to clipboard!");
   } catch (err) {
-    alert('Failed to copy. Try again.')
-    console.error(err)
+    alert("Failed to copy. Try again.");
+    console.error(err);
   }
 }
+
+function retryFetchReport() {
+  loading.value = true;
+  fetchReport();
+}
+
+onMounted(() => {
+  fetchReport();
+});
 </script>
 
 <style>
@@ -185,11 +236,20 @@ const copyReportToClipboard = async () => {
   opacity: 0;
 }
 
-/* Soft pulsing loader */
+/* Soft pulsing loader with brighter colors */
 @keyframes slowPulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
+  0% {
+    opacity: 0.6;
+    color: #fbbf24; /* sun gold */
+  }
+  50% {
+    opacity: 1;
+    color: #fcd34d; /* brighter sun gold */
+  }
+  100% {
+    opacity: 0.6;
+    color: #fbbf24;
+  }
 }
 .animate-slowPulse {
   animation: slowPulse 2.4s ease-in-out infinite;
