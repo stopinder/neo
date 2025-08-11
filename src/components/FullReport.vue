@@ -34,16 +34,7 @@
           </p>
         </div>
 
-        <div class="mt-10 px-6 py-8 bg-moon-glow/70 rounded-2xl border border-ink-night/10 shadow-halo backdrop-blur-sm text-center space-y-4 transition hover:shadow-aura">
-          <h4 class="text-2xl font-poetic text-ink-night tracking-wide">✨ Want to Go Deeper?</h4>
-          <p class="text-ink-night/80 text-base leading-relaxed max-w-2xl mx-auto">
-            Unlock an extended reading based on your psychological constellation — featuring deeper IFS protectors, mythic reflections, and symbolic insights drawn from your core patterns.
-          </p>
-          <button class="bg-sun-gold hover:bg-ink-night text-white font-semibold px-8 py-3 rounded-full shadow-aura transition duration-300">
-            Unlock Extended Report — $2.99
-          </button>
-        </div>
-
+        <!-- Actions: Email, Copy, Download -->
         <div class="flex flex-col items-center space-y-4 pt-6">
           <input
               v-model="userEmail"
@@ -58,6 +49,14 @@
           >
             Send to My Inbox
           </button>
+
+          <button
+              @click="copyReportToClipboard"
+              class="bg-ink-night hover:bg-sun-gold text-white font-semibold px-6 py-3 rounded-full shadow-aura transition"
+          >
+            Copy Report to Clipboard
+          </button>
+
           <button
               @click="downloadPDF"
               class="bg-ink-night hover:bg-sun-gold text-white font-semibold px-6 py-3 rounded-full shadow-aura transition"
@@ -74,10 +73,20 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import html2pdf from 'html2pdf.js'
+const copyReportToClipboard = async () => {
+  try {
+    await navigator.clipboard.writeText(plainTextReport.value)
+    alert('Report copied to clipboard!')
+  } catch (err) {
+    alert('Failed to copy. Try again.')
+    console.error(err)
+  }
+}
 
 const report = ref({})
 const loading = ref(true)
