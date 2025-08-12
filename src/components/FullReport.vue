@@ -68,7 +68,7 @@
         <!-- Mission call-to-action -->
         <div class="mt-6 text-center">
           <a
-              href="https://yourwebsite.com/mission"
+              href="https://robormiston.com/mission"
               target="_blank"
               rel="noopener"
               class="inline-block bg-sun-gold text-ink-night font-semibold px-6 py-3 rounded shadow hover:bg-yellow-400 transition"
