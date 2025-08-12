@@ -1,4 +1,3 @@
-// /api/generate-report.js
 import OpenAI from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -21,15 +20,15 @@ export default async function handler(req, res) {
         return res.status(413).json({ error: "Answers payload too large." });
     }
 
-    // ----- Prompt pieces -----
+    // ----- Refined prompt pieces -----
     const systemMsg = `
 You are a psychologically informed synthesis engine trained in Internal Family Systems (IFS), the Enneagram (including subtype and wing), Attachment Theory, and Transactional Analysis (TA).
 
-Task: Generate a one-off, structured psychological insight report based on quiz answers.
+Task: Generate a single structured psychological insight report based on the user’s quiz answers.
 
-Tone: Calm, reflective, grounded. Avoid absolutes; prefer “may,” “tend to,” “is often drawn to…”. Define key terms when used (“protector,” “subtype,” “attachment”). Each section 250–500 words. Reserve mythopoetic metaphors for final sections only.
+Tone: Calm, reflective, grounded. Avoid absolutes; prefer “may,” “tend to,” “is often drawn to…”. Define key terms inline when first used. Each section should be 250–500 words. Use mythopoetic metaphors only in the final sections.
 
-Output Policy: Return ONLY a valid JSON object with EXACTLY these keys and no extra text, no code fences:
+Output: Return ONLY a valid JSON object with EXACTLY these keys (no extra text or code fences):
 
 {
   "core_profile": "...",
@@ -53,8 +52,11 @@ Output Policy: Return ONLY a valid JSON object with EXACTLY these keys and no ex
 `.trim();
 
     const userMsg = `
-User Responses:
+User Quiz Answers:
+
 ${answersString}
+
+Please interpret these answers as data about personality traits, relational styles, and inner systems to generate the report.
 `.trim();
 
     // ----- Call helper with retries -----
