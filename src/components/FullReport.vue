@@ -67,12 +67,10 @@
 
         <!-- Mission call-to-action -->
         <div class="mt-6 text-center">
-          <a
-              href="https://robormiston.com/mission"
-              target="_blank"
-              rel="noopener"
-              class="inline-block bg-sun-gold text-ink-night font-semibold px-6 py-3 rounded shadow hover:bg-yellow-400 transition"
-          >Learn More About Our Mission</a
+          <a href="https://buymeacoffee.com/heliosynth" target="_blank" rel="noopener noreferrer" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 px-4 rounded">
+            ☕ Buy Me a Coffee
+          </a>
+
           >
         </div>
 
