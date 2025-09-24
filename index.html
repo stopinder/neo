@@ -28,24 +28,6 @@
     <meta name="twitter:image" content="/cover.jpg" />
 
 </head>
-<script>
-    (function () {
-        function show(msg) {
-            var el = document.createElement('div');
-            el.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:99999;background:#111;color:#ffb4b4;padding:12px 16px;font:12px/1.4 system-ui, -apple-system, Segoe UI, Roboto;white-space:pre-wrap;word-break:break-word;box-shadow:0 2px 8px rgba(0,0,0,.3)';
-            el.textContent = '⚠️ App error: ' + msg;
-            document.body.appendChild(el);
-            console.error('App error:', msg);
-        }
-        window.addEventListener('error', function (e) {
-            show((e.error && e.error.stack) || e.message || String(e));
-        });
-        window.addEventListener('unhandledrejection', function (e) {
-            var r = e.reason;
-            show((r && r.stack) || (r && r.message) || String(r));
-        });
-    })();
-</script>
 
 <body>
 <div id="app"></div>
