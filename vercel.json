@@ -4,6 +4,15 @@
   },
   "rewrites": [
     { "source": "/api/:match*", "destination": "/api/:match*" },
-    { "source": "/:path*", "destination": "/" }
+    {
+      "source": "/:path*",
+      "destination": "/",
+      "has": [
+        {
+          "type": "method",
+          "value": "GET"
+        }
+      ]
+    }
   ]
 }
