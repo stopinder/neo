@@ -1,21 +1,22 @@
-// src/router/index.js
-import { createRouter, createWebHashHistory } from 'vue-router'
-import LandingPage from '../components/LandingPage.vue'
-import Quiz from '../components/Quiz.vue'
-import FullReport from '../components/FullReport.vue'
-import Ping from '../components/Ping.vue' // ✅ keep test route
+<!-- src/components/LandingPage.vue -->
+<template>
+  <div class="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white p-8 space-y-6">
+    <h1 class="text-4xl font-bold">Welcome to Inner Alchemy</h1>
+    <p class="text-slate-300">This is a simplified landing page for testing.</p>
 
-const routes = [
-{ path: '/', name: 'Home', component: LandingPage },
-{ path: '/quiz', name: 'Quiz', component: Quiz },
-{ path: '/full-report', name: 'Report', component: FullReport },
-{ path: '/ping', name: 'Ping', component: Ping } // ✅ new test route
-]
+    <router-link
+        to="/quiz"
+        class="px-6 py-3 rounded-lg bg-amber-600 hover:bg-amber-500 transition text-white font-semibold"
+    >
+      Begin Quiz
+    </router-link>
+  </div>
+</template>
 
-const router = createRouter({
-history: createWebHashHistory(), // hash mode for Vercel
-routes,
-scrollBehavior: () => ({ top: 0 }),
-})
+<script setup>
+// no script needed for this minimal version
+</script>
 
-export default router
+<style scoped>
+/* minimal styling, no imports */
+</style>
