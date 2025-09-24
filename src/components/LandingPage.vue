@@ -20,7 +20,7 @@
         class="absolute top-6 left-6 inline-flex items-center gap-3 text-sky-300/90 hover:text-sky-100 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400 focus:ring-offset-slate-900 rounded"
     >
       <img
-          :src="logo"
+          src="/but.png"
           alt="Chrysalis Therapy Services — butterfly emblem"
           class="w-10 h-10 rounded transition-transform duration-300 hover:scale-105"
           loading="lazy"
@@ -133,9 +133,7 @@
     </section>
 
     <!-- Footer -->
-    <footer
-        class="mt-12 w-full max-w-3xl text-center text-xs text-slate-400"
-    >
+    <footer class="mt-12 w-full max-w-3xl text-center text-xs text-slate-400">
       <p>
         © {{ year }} Notes on Ordinary Madness • Made with care.
         Privacy-respecting by design.
@@ -146,7 +144,6 @@
 
 <script setup>
 import { ref } from 'vue'
-import logo from '../assets/but.png'
 
 const showMore = ref(false)
 const year = new Date().getFullYear()
@@ -165,3 +162,4 @@ const year = new Date().getFullYear()
   'Segoe UI Symbol', sans-serif;
 }
 </style>
+
