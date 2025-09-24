@@ -1,5 +1,4 @@
 // /src/services/gptService.js
-
 export async function generateReport(quizType, answers) {
     // Build the GPT prompt
     const prompt = `
@@ -34,25 +33,19 @@ Tone rules:
 `
 
     try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        // ✅ Call your Vercel serverless API route, not OpenAI directly
+        const response = await fetch("/api/gpt", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`, // 👈 Put your key in .env
-            },
-            body: JSON.stringify({
-                model: "gpt-4.1", // or gpt-4o, gpt-5 when available
-                messages: [{ role: "user", content: prompt }],
-                temperature: 0.7,
-            }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt }),
         })
 
         if (!response.ok) {
-            throw new Error(`OpenAI API error: ${response.statusText}`)
+            throw new Error(`Serverless API error: ${response.statusText}`)
         }
 
         const data = await response.json()
-        return data.choices[0].message.content
+        return data.text
     } catch (err) {
         console.error("Error generating report:", err)
         return "⚠️ Unable to generate report. Please try again later."
