@@ -16,14 +16,14 @@
       >
         <svg class="h-8 w-8 animate-spin text-amber-300" viewBox="0 0 24 24" fill="none">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a 8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
         </svg>
         <p class="text-lg">Mapping your inner constellation…</p>
       </div>
 
       <!-- Error -->
       <div v-else-if="errorMsg" class="bg-rose-50/10 border border-rose-200/30 text-rose-200 rounded-xl p-6">
-        <p>{{ errorMsg }}</p>
+        <p class="whitespace-pre-wrap">{{ errorMsg }}</p>
         <div class="mt-4">
           <button
               @click="retryFetchReport"
@@ -140,7 +140,6 @@ const archetypeLabel = computed(() => {
 })
 
 const inBrief = computed(() => {
-  // Lightweight synthesis; safe if API doesn’t return its own summary
   const core = report.value?.core_reflection || ''
   const parts = report.value?.parts_map || ''
   const lineA = firstSentence(core)
@@ -161,7 +160,7 @@ const plainTextReport = computed(() => {
     report.value.mythopoetic_image || '',
     '',
     '🪞 Gentle Invitations:',
-    ...(Array.isArray(report.value.gentle_invitations) ? report.value.gentle_invitations.map((x, i) => `• ${x}`) : []),
+    ...(Array.isArray(report.value.gentle_invitations) ? report.value.gentle_invitations.map((x) => `• ${x}`) : []),
     '',
     '⚠️ Disclaimer:',
     report.value.disclaimer || ''
@@ -189,9 +188,15 @@ async function fetchReport() {
   }
 
   try {
-    // Align with your live API path
-    const { data } = await axios.post('/api/generate', { answers: storedAnswers })
-    // Expect the correct JSON shape; accept only the keys we use
+    // Use env base in dev to avoid CORS; empty string in prod keeps it relative
+    const base = import.meta.env.VITE_API_BASE || ''
+    const res = await axios.post(
+        `${base}/api/generate`,
+        { answers: storedAnswers },
+        { timeout: 20000 } // 20s safety timeout
+    )
+
+    const data = res?.data || {}
     report.value = {
       core_reflection: data.core_reflection || '',
       parts_map: data.parts_map || '',
@@ -200,8 +205,14 @@ async function fetchReport() {
       disclaimer: data.disclaimer || 'This is reflective entertainment, not therapy or diagnosis.'
     }
   } catch (e) {
+    // Show the actual server message if present
+    const serverMsg =
+        e?.response?.data?.error ||
+        (typeof e?.response?.data === 'string' ? e.response.data : '') ||
+        e?.message ||
+        'Unknown error'
     console.error(e)
-    errorMsg.value = 'Something went wrong while generating your reflection.'
+    errorMsg.value = `Something went wrong while generating your reflection.\n\n${serverMsg}`
   } finally {
     loading.value = false
   }
