@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { useRouter, useRoute } from "vue-router"
 import { quizConfig } from "../data/quizConfig.js"
 
@@ -11,6 +11,9 @@ const quiz = quizConfig[quizType] || quizConfig.default
 
 const current = ref(0)
 const answers = ref([])
+
+// progress percentage
+const progress = computed(() => ((current.value + 1) / quiz.questions.length) * 100)
 
 function selectAnswer(value) {
   answers.value[current.value] = value
@@ -36,10 +39,24 @@ function back() {
   <div class="h-screen flex flex-col items-center justify-center bg-midnight text-white p-6">
     <div v-if="quiz.questions.length" class="w-full max-w-xl bg-slate-800 border border-slate-600 rounded-lg p-6">
       <!-- Quiz title -->
-      <h1 class="text-3xl font-poetic text-sun-gold mb-4">{{ quiz.title }}</h1>
+      <h1 class="text-2xl font-poetic text-sun-gold mb-4">{{ quiz.title }}</h1>
+
+      <!-- Progress -->
+      <div class="mb-6">
+        <div class="flex justify-between text-sm text-slate-400 mb-1">
+          <span>Question {{ current + 1 }} of {{ quiz.questions.length }}</span>
+          <span>{{ Math.round(progress) }}%</span>
+        </div>
+        <div class="w-full h-2 bg-slate-700 rounded">
+          <div
+              class="h-2 bg-sun-gold rounded transition-all duration-300"
+              :style="{ width: progress + '%' }"
+          ></div>
+        </div>
+      </div>
 
       <!-- Question text -->
-      <h2 class="text-xl mb-6">{{ quiz.questions[current].text }}</h2>
+      <h2 class="text-lg mb-6">{{ quiz.questions[current].text }}</h2>
 
       <!-- Options -->
       <div class="flex flex-col gap-3 mb-6">
