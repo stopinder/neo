@@ -16,6 +16,7 @@ export default async function handler(req, res) {
         if (!process.env.OPENAI_API_KEY) {
             return res.status(500).json({ error: "Missing OpenAI API key" });
         }
+        console.log("🔍 GPT Prompt:\n", prompt);
 
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
