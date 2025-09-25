@@ -1,59 +1,43 @@
 // /src/services/gptService.js
 
 export async function generateReport(quizType, data) {
-    const { answers, tally, moonPhase } = data
+    const { answers, tally, moonPhase } = data;
 
-    // Format item answers in a token-efficient way
-    const formattedAnswers = answers
-        .map((a, i) => `Q${i + 1}: ${a.option || a.answer || "No answer"}`)
-        .join("\n")
-
+    // Build a shorter, more efficient GPT prompt
     const prompt = `
-You are Heliosynthesis, a reflective, IFS-informed therapist. Your tone is warm, symbolic, and poetic—but still professional. The client has just completed a multiple-choice self-reflection quiz.
+You are an IFS-informed therapist creating a gentle, imaginal report based on a self-reflection quiz.
 
-Quiz type: ${quizType}
+Quiz Type: ${quizType}
+Moon Phase: ${moonPhase}
 
-🌙 The current moon phase is: ${moonPhase}
-This may reflect an inner symbolic atmosphere for the client.
-
-### Role frequencies
+### Role Frequencies
 - Protector: ${tally?.protector ?? 0}
 - Manager: ${tally?.manager ?? 0}
 - Exile: ${tally?.exile ?? 0}
 - Self: ${tally?.self ?? 0}
 
-### Selected answers
-${formattedAnswers}
-
-📝 Now write a reflective personality-style report, 600–800 words, using this structure:
+Using this as a general symbolic map of the client's system, write a **300–500 word reflective report** with this structure:
 
 ## Summary
-Offer 2–3 paragraphs of overall insight into the person’s inner system. Use gentle language.
+2–3 paragraphs offering overall insight.
 
 ## Parts Overview
-Describe possible internal dynamics between Protectors, Managers, Exiles, and the Self. Make it imaginal if helpful.
-
-## Relational Themes
-How might these inner patterns affect connection with others and the world?
+What roles are active? How might these parts relate?
 
 ## Strengths & Resources
-Highlight resilience, Self-energy, and adaptive strategies.
+Mention resilience, self-energy, or symbolic support.
 
 ## Challenges & Invitations
-Name any over-used strategies or tensions as gentle invitations for reflection—not pathologies.
+Offer gentle reflections on inner tension or imbalance.
 
 ## Reflective Prompts
-Offer 3–5 journal questions for future exploration.
+Include 3–5 open-ended questions.
 
-## Closing Quote
-End with a brief, poetic quote aligned with the current moon phase.
-
-Tone rules:
-- Warm, symbolic, and poetic—but never vague
-- Use metaphor only when helpful
-- Avoid diagnostic or clinical language
-- Support curiosity, not certainty
-`
+Tone:
+- Warm, poetic, reflective
+- Not diagnostic or clinical
+- Gently symbolic (myth or metaphor ok)
+`;
 
     try {
         const response = await fetch("/api/gpt", {
@@ -62,23 +46,22 @@ Tone rules:
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ prompt }),
-        })
+        });
 
         if (!response.ok) {
-            throw new Error(`Serverless API error: ${response.statusText}`)
+            throw new Error(`Serverless API error: ${response.statusText}`);
         }
 
-        const dataResp = await response.json()
-        const result = dataResp.result?.trim()
+        const dataResp = await response.json();
 
-        if (!result) {
-            throw new Error("GPT returned an empty message")
+        if (!dataResp?.result || dataResp.result.trim() === "") {
+            throw new Error("GPT returned empty content");
         }
 
-        return result
+        return dataResp.result;
     } catch (err) {
-        console.error("❌ Error generating report:", err)
-        return "⚠️ Unable to generate report. Please try again later."
+        console.error("❌ GPT Report Error:", err);
+        return "⚠️ Unable to generate report. Please try again later.";
     }
 }
 

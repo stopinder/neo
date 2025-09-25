@@ -10,12 +10,10 @@ export default async function handler(req, res) {
         for await (const chunk of req) {
             body += chunk;
         }
+
         const { prompt } = JSON.parse(body);
 
-        const apiKey = process.env.OPENAI_API_KEY;
-        const model = process.env.OPENAI_MODEL || "gpt-3.5-turbo"; // Default fallback
-
-        if (!apiKey) {
+        if (!process.env.OPENAI_API_KEY) {
             return res.status(500).json({ error: "Missing OpenAI API key" });
         }
 
@@ -23,13 +21,13 @@ export default async function handler(req, res) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${apiKey}`,
+                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
             },
             body: JSON.stringify({
-                model,
+                model: "gpt-3.5-turbo", // ← Now using 3.5 for speed/cost
                 messages: [{ role: "user", content: prompt }],
-                temperature: 0.8,
-                max_tokens: 1800,
+                temperature: 0.75,
+                max_tokens: 1200,
             }),
         });
 
@@ -40,7 +38,14 @@ export default async function handler(req, res) {
         }
 
         const data = await response.json();
-        return res.status(200).json({ result: data.choices[0].message.content });
+
+        const content = data?.choices?.[0]?.message?.content;
+        if (!content || content.trim() === "") {
+            console.error("⚠️ GPT returned empty content", data);
+            return res.status(500).json({ error: "GPT returned no content." });
+        }
+
+        return res.status(200).json({ result: content });
     } catch (err) {
         console.error("🔥 Serverless function error:", err);
         return res.status(500).json({ error: "Server error generating report" });
