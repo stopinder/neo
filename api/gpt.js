@@ -2,55 +2,47 @@
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
-        return res.status(405).json({ error: "Method not allowed" })
+        return res.status(405).json({ error: "Method not allowed" });
     }
 
     try {
-        let body = ""
+        let body = "";
         for await (const chunk of req) {
-            body += chunk
+            body += chunk;
         }
+        const { prompt } = JSON.parse(body);
 
-        const { prompt } = JSON.parse(body)
+        const apiKey = process.env.OPENAI_API_KEY;
+        const model = process.env.OPENAI_MODEL || "gpt-3.5-turbo"; // Default fallback
 
-        if (!prompt || prompt.length < 50) {
-            return res.status(400).json({ error: "Prompt too short or missing." })
-        }
-
-        if (!process.env.OPENAI_API_KEY) {
-            return res.status(500).json({ error: "Missing OpenAI API key" })
+        if (!apiKey) {
+            return res.status(500).json({ error: "Missing OpenAI API key" });
         }
 
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                Authorization: `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: "gpt-4", // or fallback to gpt-3.5-turbo if needed
+                model,
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.8,
                 max_tokens: 1800,
             }),
-        })
+        });
 
         if (!response.ok) {
-            const errText = await response.text()
-            console.error("❌ OpenAI API error:", errText)
-            return res.status(response.status).json({ error: errText })
+            const err = await response.text();
+            console.error("❌ OpenAI API error:", err);
+            return res.status(response.status).json({ error: err });
         }
 
-        const data = await response.json()
-        const content = data.choices?.[0]?.message?.content?.trim()
-
-        if (!content) {
-            return res.status(500).json({ error: "No content returned from GPT." })
-        }
-
-        return res.status(200).json({ result: content })
+        const data = await response.json();
+        return res.status(200).json({ result: data.choices[0].message.content });
     } catch (err) {
-        console.error("🔥 Server error:", err)
-        return res.status(500).json({ error: "Server error generating report." })
+        console.error("🔥 Serverless function error:", err);
+        return res.status(500).json({ error: "Server error generating report" });
     }
 }
