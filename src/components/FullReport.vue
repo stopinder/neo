@@ -6,21 +6,35 @@ import { generateReport } from "../services/gptService.js"
 const reportText = ref("")
 const moonPhase = ref("")
 const reportRef = ref(null)
+const isLoading = ref(true)
+const error = ref(null)
 
 onMounted(async () => {
-  const savedAnswers = JSON.parse(localStorage.getItem("quizAnswers") || "[]")
-  const tally = JSON.parse(localStorage.getItem("quizTally") || "{}")
+  try {
+    const savedAnswers = JSON.parse(localStorage.getItem("quizAnswers") || "[]")
+    const tally = JSON.parse(localStorage.getItem("quizTally") || "{}")
 
-  // ✅ Pass both answers and tally to GPT service
-  reportText.value = await generateReport("IFS Multiple Choice Quiz", {
-    answers: savedAnswers,
-    tally,
-  })
+    if (!savedAnswers.length) throw new Error("No quiz data found")
 
-  moonPhase.value = getMoonPhaseName()
+    moonPhase.value = getMoonPhaseName()
+
+    const response = await generateReport("IFS Multiple Choice Quiz", {
+      answers: savedAnswers,
+      tally,
+      moonPhase: moonPhase.value,
+    })
+
+    reportText.value = response
+  } catch (err) {
+    console.error(err)
+    error.value = "⚠️ Sorry — we couldn’t generate your report. Please retake the quiz."
+  } finally {
+    isLoading.value = false
+  }
 })
 
 function downloadAsPDF() {
+  if (!reportRef.value) return
   const options = {
     margin: 0.5,
     filename: "inner-landscape-report.pdf",
@@ -33,7 +47,7 @@ function downloadAsPDF() {
 
 function getMoonPhaseName() {
   const now = new Date()
-  const lp = 2551443 // lunar period in ms
+  const lp = 2551443
   const newMoon = new Date(1970, 0, 7, 20, 35, 0)
   const phase = ((now.getTime() - newMoon.getTime()) / 1000) % lp
   const phaseDay = Math.floor(phase / (24 * 3600) + 1)
@@ -50,29 +64,44 @@ function getMoonPhaseName() {
 </script>
 
 <template>
-  <section class="px-6 py-10 max-w-3xl mx-auto text-slate-100">
-    <!-- 🌙 Optional Moon Phase Line -->
-    <div v-if="moonPhase" class="text-sm text-slate-400 italic mb-4">
-      The moon is currently in her
-      <span class="text-sun-gold font-medium">{{ moonPhase }}</span> phase —
-      a time for reflection and integration.
-    </div>
+  <section class="bg-midnight px-6 py-10 max-w-3xl mx-auto rounded-2xl shadow-aura text-slate-100">
+    <div class="border border-sun-gold/20 rounded-2xl p-6 relative z-10">
 
-    <!-- 📝 GPT Report -->
-    <article
-        ref="reportRef"
-        v-html="reportText"
-        class="prose prose-invert max-w-none text-base leading-relaxed tracking-wide text-white"
-    />
+      <!-- 🌙 Moon phase intro -->
+      <div v-if="moonPhase" class="text-sm text-slate-400 italic mb-6">
+        The moon is currently in her
+        <span class="text-sun-gold font-medium">{{ moonPhase }}</span> phase — a time for reflection and integration.
+      </div>
 
-    <!-- 📄 Download Button -->
-    <div class="mt-8">
-      <button
-          class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-sm shadow"
-          @click="downloadAsPDF"
-      >
-        Download PDF
-      </button>
+      <!-- 🌀 Error -->
+      <div v-if="error" class="text-red-400 italic mb-6">{{ error }}</div>
+
+      <!-- ⏳ Loading -->
+      <div v-else-if="isLoading" class="text-slate-400 italic mb-6">Generating your report…</div>
+
+      <!-- 📝 Final report -->
+      <article
+          v-else
+          ref="reportRef"
+          v-html="reportText"
+          class="font-poetic prose prose-celestial prose-lg max-w-none text-base leading-relaxed tracking-wide transition-opacity duration-700 ease-in opacity-0 animate-fade-in"
+      />
+
+      <!-- 📄 Download Button -->
+      <div v-if="reportText" class="mt-10 text-center">
+        <button
+            class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-sm shadow"
+            @click="downloadAsPDF"
+        >
+          Download PDF
+        </button>
+      </div>
+
+      <!-- 🌱 Footer CTA -->
+      <p class="mt-12 text-sm text-slate-500 italic text-center">
+        Report generated with care under the {{ moonPhase }} moon 🌙<br />
+        <router-link to="/" class="underline hover:text-sun-gold">Retake the quiz</router-link>
+      </p>
     </div>
   </section>
 </template>
@@ -88,6 +117,3 @@ function getMoonPhaseName() {
   @apply text-slate-200;
 }
 </style>
-
-
-
