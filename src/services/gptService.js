@@ -1,64 +1,58 @@
+// /src/services/gptService.js
+
 export async function generateReport(quizType, data) {
     const { answers, tally, moonPhase } = data
 
-    const moonSymbolism = {
-        "New Moon": "A time of quiet emergence. Something new may be seeking to surface from within.",
-        "Waxing Crescent": "A time for planting seeds. Inner growth stirs, even if not yet visible.",
-        "First Quarter": "A moment of tension and momentum. Parts may press forward or resist change.",
-        "Waxing Gibbous": "A swelling phase — rich with insight, but not yet resolution.",
-        "Full Moon": "Illumination. Patterns long hidden may now be seen in full light.",
-        "Waning Gibbous": "Integration begins. Insights soften, and reflection deepens.",
-        "Last Quarter": "A phase of shedding. What can be released to lighten the inner field?",
-        "Waning Crescent": "A sacred pause. Rest before renewal. Listen to the whispering parts.",
-    }
-
-    const symbolicMessage = moonSymbolism[moonPhase] || "A lunar moment for reflection and inner attunement."
+    // Format item answers in a token-efficient way
+    const formattedAnswers = answers
+        .map((a, i) => `Q${i + 1}: ${a.option || a.answer || "No answer"}`)
+        .join("\n")
 
     const prompt = `
-You are a reflective, IFS-informed guide with symbolic and poetic insight. 
-The client has just completed a multiple-choice reflective quiz.
+You are Heliosynthesis, a reflective, IFS-informed therapist. Your tone is warm, symbolic, and poetic—but still professional. The client has just completed a multiple-choice self-reflection quiz.
 
 Quiz type: ${quizType}
 
-### Moon Phase
-- Current Moon: ${moonPhase}
-- Symbolic Message: "${symbolicMessage}"
+🌙 The current moon phase is: ${moonPhase}
+This may reflect an inner symbolic atmosphere for the client.
 
-### Role Frequencies
+### Role frequencies
 - Protector: ${tally?.protector ?? 0}
 - Manager: ${tally?.manager ?? 0}
 - Exile: ${tally?.exile ?? 0}
 - Self: ${tally?.self ?? 0}
 
-### Item-by-item Answers
-${JSON.stringify(answers, null, 2)}
+### Selected answers
+${formattedAnswers}
 
-Write a reflective 600–800 word report using the following structure:
+📝 Now write a reflective personality-style report, 600–800 words, using this structure:
 
 ## Summary
-Offer 2–3 warm, poetic paragraphs describing the overall tendencies of the person’s inner system. Reference the symbolic mood of the current moon phase, if relevant.
+Offer 2–3 paragraphs of overall insight into the person’s inner system. Use gentle language.
 
 ## Parts Overview
-Explore how the Protectors, Managers, Exiles, and Self may show up. Use gentle, archetypal language (e.g., “a cautious strategist”, “a silenced inner child”). Show relational patterns between these parts.
+Describe possible internal dynamics between Protectors, Managers, Exiles, and the Self. Make it imaginal if helpful.
 
 ## Relational Themes
-How might these inner dynamics influence their relationships with others or with the world?
+How might these inner patterns affect connection with others and the world?
 
 ## Strengths & Resources
-Affirm inner resilience. Name self-led moments, growth edges, or supportive protectors.
+Highlight resilience, Self-energy, and adaptive strategies.
 
 ## Challenges & Invitations
-Offer compassionate, non-pathologizing insights. Frame challenges as invitations for deeper curiosity, not as problems to be solved.
+Name any over-used strategies or tensions as gentle invitations for reflection—not pathologies.
 
 ## Reflective Prompts
-List 3–5 gentle questions they can explore in journaling or therapy.
+Offer 3–5 journal questions for future exploration.
 
-Tone guide:
-- Poetic, grounded, warm
-- Evocative but not overwhelming
-- Avoid diagnoses or jargon
-- Use metaphor, lunar language, and symbolic insight when fitting
-- Encourage curiosity and self-compassion
+## Closing Quote
+End with a brief, poetic quote aligned with the current moon phase.
+
+Tone rules:
+- Warm, symbolic, and poetic—but never vague
+- Use metaphor only when helpful
+- Avoid diagnostic or clinical language
+- Support curiosity, not certainty
 `
 
     try {
@@ -75,9 +69,16 @@ Tone guide:
         }
 
         const dataResp = await response.json()
-        return dataResp.result
+        const result = dataResp.result?.trim()
+
+        if (!result) {
+            throw new Error("GPT returned an empty message")
+        }
+
+        return result
     } catch (err) {
-        console.error("Error generating report:", err)
+        console.error("❌ Error generating report:", err)
         return "⚠️ Unable to generate report. Please try again later."
     }
 }
+

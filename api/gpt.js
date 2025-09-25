@@ -1,63 +1,56 @@
+// /api/gpt.js
+
 export default async function handler(req, res) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" })
     }
 
     try {
-        // Parse request body
-        const buffers = []
-        for await (const chunk of req) buffers.push(chunk)
-        const body = JSON.parse(Buffer.concat(buffers).toString())
-
-        const prompt = body?.prompt
-
-        if (!prompt || typeof prompt !== "string") {
-            return res.status(400).json({ error: "Missing or invalid prompt" })
+        let body = ""
+        for await (const chunk of req) {
+            body += chunk
         }
 
-        const apiKey = process.env.OPENAI_API_KEY
-        if (!apiKey) {
+        const { prompt } = JSON.parse(body)
+
+        if (!prompt || prompt.length < 50) {
+            return res.status(400).json({ error: "Prompt too short or missing." })
+        }
+
+        if (!process.env.OPENAI_API_KEY) {
             return res.status(500).json({ error: "Missing OpenAI API key" })
         }
 
-        // Call OpenAI Chat API
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${apiKey}`,
+                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
             },
             body: JSON.stringify({
-                model: "gpt-4-0613",
-                messages: [
-                    {
-                        role: "user",
-                        content: prompt,
-                    },
-                ],
-                temperature: 0.7,
-                max_tokens: 1500,
+                model: "gpt-4", // or fallback to gpt-3.5-turbo if needed
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.8,
+                max_tokens: 1800,
             }),
         })
 
         if (!response.ok) {
-            const error = await response.text()
-            console.error("❌ OpenAI API error:", error)
-            return res.status(response.status).json({ error: error })
+            const errText = await response.text()
+            console.error("❌ OpenAI API error:", errText)
+            return res.status(response.status).json({ error: errText })
         }
 
         const data = await response.json()
         const content = data.choices?.[0]?.message?.content?.trim()
 
         if (!content) {
-            return res.status(500).json({ error: "No response from OpenAI" })
+            return res.status(500).json({ error: "No content returned from GPT." })
         }
 
         return res.status(200).json({ result: content })
     } catch (err) {
-        console.error("🔥 GPT API error:", err)
-        return res.status(500).json({ error: "Server error generating report" })
+        console.error("🔥 Server error:", err)
+        return res.status(500).json({ error: "Server error generating report." })
     }
 }
-
-

@@ -8,8 +8,16 @@ const moonPhase = ref("")
 const reportRef = ref(null)
 const isLoading = ref(true)
 const error = ref(null)
+const quote = ref("")
 
-onMounted(async () => {
+onMounted(() => generate())
+
+async function generate() {
+  isLoading.value = true
+  error.value = ""
+  reportText.value = ""
+  quote.value = ""
+
   try {
     const savedAnswers = JSON.parse(localStorage.getItem("quizAnswers") || "[]")
     const tally = JSON.parse(localStorage.getItem("quizTally") || "{}")
@@ -25,13 +33,15 @@ onMounted(async () => {
     })
 
     reportText.value = response
+
+    quote.value = getMoonQuote(moonPhase.value)
   } catch (err) {
     console.error(err)
     error.value = "⚠️ Sorry — we couldn’t generate your report. Please retake the quiz."
   } finally {
     isLoading.value = false
   }
-})
+}
 
 function downloadAsPDF() {
   if (!reportRef.value) return
@@ -61,11 +71,25 @@ function getMoonPhaseName() {
   if (phaseDay < 24) return "Last Quarter"
   return "Waning Crescent"
 }
+
+function getMoonQuote(phase) {
+  const quotes = {
+    "New Moon": "“There is no beginning too small.” — Thoreau",
+    "Waxing Crescent": "“Every day is a journey, and the journey itself is home.” — Bashō",
+    "First Quarter": "“You must do the thing you think you cannot do.” — Eleanor Roosevelt",
+    "Waxing Gibbous": "“Things do not change; we change.” — Thoreau",
+    "Full Moon": "“We are all like the bright moon — we still have our darker side.” — Kahlil Gibran",
+    "Waning Gibbous": "“In the end, we return to ourselves.” — Carl Jung",
+    "Last Quarter": "“To everything there is a season.” — Ecclesiastes",
+    "Waning Crescent": "“The wound is the place where the light enters you.” — Rumi",
+  }
+  return quotes[phase] || ""
+}
 </script>
 
 <template>
   <section class="bg-midnight px-6 py-10 max-w-3xl mx-auto rounded-2xl shadow-aura text-slate-100">
-    <div class="border border-sun-gold/20 rounded-2xl p-6 relative z-10">
+    <div class="border border-sun-gold/20 rounded-2xl p-6 relative z-10 bg-opacity-90 backdrop-blur">
 
       <!-- 🌙 Moon phase intro -->
       <div v-if="moonPhase" class="text-sm text-slate-400 italic mb-6">
@@ -87,13 +111,24 @@ function getMoonPhaseName() {
           class="font-poetic prose prose-celestial prose-lg max-w-none text-base leading-relaxed tracking-wide transition-opacity duration-700 ease-in opacity-0 animate-fade-in"
       />
 
-      <!-- 📄 Download Button -->
-      <div v-if="reportText" class="mt-10 text-center">
+      <!-- ✨ Moon quote -->
+      <div v-if="quote && !isLoading" class="mt-10 text-center italic text-slate-400 text-sm">
+        {{ quote }}
+      </div>
+
+      <!-- 📄 Buttons -->
+      <div v-if="reportText && !isLoading" class="mt-10 text-center flex flex-col sm:flex-row justify-center gap-4">
         <button
             class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-sm shadow"
             @click="downloadAsPDF"
         >
           Download PDF
+        </button>
+        <button
+            class="px-4 py-2 rounded-xl bg-transparent border border-sun-gold hover:bg-slate-800 text-sun-gold text-sm shadow"
+            @click="generate"
+        >
+          Regenerate Report
         </button>
       </div>
 
