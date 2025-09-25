@@ -1,19 +1,15 @@
 // /api/gpt.js
 export default async function handler(req, res) {
-    try {
-        if (req.method !== "POST") {
-            return res.status(405).json({ error: "Method not allowed" })
-        }
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Method not allowed" })
+    }
 
-        // Collect request body
+    try {
         let body = ""
         for await (const chunk of req) {
             body += chunk
         }
         const { prompt } = JSON.parse(body)
-
-        console.log("🔑 Server key prefix:", process.env.OPENAI_API_KEY?.slice(0, 5))
-        console.log("📝 Prompt length:", prompt?.length)
 
         if (!process.env.OPENAI_API_KEY) {
             return res.status(500).json({ error: "Missing OpenAI API key" })
@@ -38,9 +34,10 @@ export default async function handler(req, res) {
         }
 
         const data = await response.json()
-        return res.status(200).json({ text: data.choices[0].message.content })
+        return res.status(200).json({ result: data.choices[0].message.content })
     } catch (err) {
         console.error("🔥 Serverless function error:", err)
         return res.status(500).json({ error: "Server error generating report" })
     }
 }
+

@@ -1,42 +1,59 @@
 // /src/services/gptService.js
-export async function generateReport(quizType, answers) {
-    // Build the GPT prompt
+
+export async function generateReport(quizType, data) {
+    const { answers, tally } = data
+
+    // Build GPT prompt
     const prompt = `
 You are an IFS-informed therapist.
-The client has just completed a self-reflection quiz.
+The client has just completed a multiple-choice reflective quiz.
 
 Quiz type: ${quizType}
-Answers: ${JSON.stringify(answers)}
 
-Write a reflective personality-style report, 500–700 words, structured as:
+### Role frequencies
+- Protector: ${tally?.protector ?? 0}
+- Manager: ${tally?.manager ?? 0}
+- Exile: ${tally?.exile ?? 0}
+- Self: ${tally?.self ?? 0}
+
+### Item-by-item answers
+${JSON.stringify(answers, null, 2)}
+
+Write a reflective report, 600–800 words, structured as:
 
 ## Summary
-- 2–3 paragraphs giving overall insight.
+2–3 paragraphs giving overall insight into the person’s inner system.
 
 ## Parts Overview
-- Discuss the likely protectors, managers, exiles, or other symbolic types implied.
+Discuss the balance of Protectors, Managers, Exiles, and Self based on the tally.
+Show how these tendencies may interact internally.
+
+## Relational Themes
+How might these patterns shape relationships with others and the world?
 
 ## Strengths & Resources
-- Highlight resilience and positive strategies.
+Highlight resilience, coping strategies, and Self-energy.
 
-## Challenges & Blind Spots
-- Describe gently, as invitations for awareness.
+## Challenges & Invitations
+Gently point to blind spots or over-reliances.
+Frame as invitations for curiosity and care, not problems to fix.
 
 ## Reflective Prompts
-- Provide 3–5 open-ended self-reflection questions.
+Provide 3–5 open-ended self-reflection questions for further exploration.
 
 Tone rules:
 - Warm but professional.
 - Reflective, not diagnostic.
 - Containment and care, not fusion.
-- Avoid clinical pathology language.
+- Avoid pathology or clinical labels.
 `
 
     try {
-        // ✅ Call your Vercel serverless API route, not OpenAI directly
         const response = await fetch("/api/gpt", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+            },
             body: JSON.stringify({ prompt }),
         })
 
@@ -44,8 +61,8 @@ Tone rules:
             throw new Error(`Serverless API error: ${response.statusText}`)
         }
 
-        const data = await response.json()
-        return data.text
+        const dataResp = await response.json()
+        return dataResp.result
     } catch (err) {
         console.error("Error generating report:", err)
         return "⚠️ Unable to generate report. Please try again later."
